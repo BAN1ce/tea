@@ -60,6 +60,15 @@ func (s *Server) SetOnClose(onClose client.OnClose) {
 func (s *Server) SetProtocol(protocol unpack.Protocol) {
 	s.protocol = protocol
 }
+func (s *Server) SetHbInterval(d time.Duration) {
+	s.hbInterval = d
+}
+func (s *Server) SetHbTimeout(d time.Duration) {
+	s.hbTimeout = d
+}
+func (s *Server) SetHbContent(content []byte) {
+	s.hbContent = content
+}
 func (s *Server) Run(ctx context.Context) {
 
 	s.mutex.Lock()
