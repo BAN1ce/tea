@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"tea/src/client"
 	"tea/src/server"
+	"time"
 )
 
 func main() {
@@ -35,10 +36,12 @@ func main() {
 		client.Write(msg)
 		return nil
 	})
+
+	s2.SetHbInterval(20 * time.Second)
+	s2.SetHbContent([]byte{'&'})
 	s2.Run(context.Background())
 
 	c := make(chan os.Signal)
-	//signal.Notify(c)
 	//监听指定信号
 	signal.Notify(c, syscall.SIGINT, syscall.SIGKILL)
 
