@@ -82,6 +82,9 @@ func (c *Client) Run(ctx context.Context) {
 				log.Println(err)
 			}
 		}
+		if c.hbInterval > 0 {
+			c.hbTimer = time.NewTimer(c.hbInterval)
+		}
 		ctxChild, cancel := context.WithCancel(ctx)
 		c.cancel = cancel
 
