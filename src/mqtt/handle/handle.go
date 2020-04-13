@@ -1,21 +1,8 @@
 package handle
 
 import "tea/src/client"
-
-type Pack struct {
-	Data            []byte
-	FixedHeader     []byte
-	FixHeaderLength int
-	Cmd             int
-}
-
-func NewPack() *Pack {
-
-	pack := new(Pack)
-
-	return pack
-}
+import "tea/src/mqtt"
 
 type Handle interface {
-	Handle(pack Pack, client *client.Client)
+	Handle(pack mqtt.Pack, client *client.Client)
 }

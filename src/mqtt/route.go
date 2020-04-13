@@ -13,7 +13,7 @@ func Boot() {
 
 }
 
-func HandleCmd(pack handle.Pack, client *client.Client) {
+func HandleCmd(pack Pack, client *client.Client) {
 
 	var getHandle handle.Handle
 	switch pack.Cmd {
