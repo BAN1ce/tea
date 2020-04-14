@@ -137,3 +137,15 @@ func (s *Server) acceptHandle(ctx context.Context, conn net.Conn) {
 	c.Run(ctx)
 
 }
+
+func (s *Server) SendToClient(clientId uuid.UUID, msg []byte) {
+
+	c, ok := s.clients.Load(clientId)
+	if ok {
+		client, ok := c.(client.Client)
+		if ok {
+			client.Write(msg)
+		}
+	}
+
+}

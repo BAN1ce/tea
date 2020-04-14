@@ -25,9 +25,9 @@ func (c Connack) GetCmd() byte {
 
 	return c.cmd
 }
-func (c Connack) GetFixedHeaderWithLength() byte {
+func (c Connack) GetFixedHeaderWithoutLength() byte {
 
-	return c.cmd
+	return c.cmd << 4
 }
 
 func (c Connack) GetVariableHeader() ([]byte, bool) {

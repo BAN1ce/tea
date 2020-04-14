@@ -1,8 +1,10 @@
 package handle
 
-import "tea/src/client"
-import "tea/src/mqtt"
+import (
+	"tea/src/client"
+	"tea/src/mqtt/protocol"
+)
 
 type Handle interface {
-	Handle(pack mqtt.Pack, client *client.Client)
+	Handle(pack protocol.Pack, client *client.Client)
 }

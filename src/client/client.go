@@ -3,6 +3,7 @@ package client
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"log"
 	"net"
@@ -20,7 +21,7 @@ type Client struct {
 	isStop     bool
 	writeChan  chan []byte
 	readChan   chan []byte
-	uid        uuid.UUID
+	Uid        uuid.UUID
 	clientDone chan<- uuid.UUID
 	hbTimer    *time.Timer
 	hbTimeout  time.Duration
@@ -45,7 +46,7 @@ func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, proto
 		isStop:     true,
 		writeChan:  make(chan []byte, 10),
 		readChan:   make(chan []byte, 10),
-		uid:        uuid,
+		Uid:        uuid,
 		clientDone: clientDone,
 		mutex:      new(sync.RWMutex),
 		protocol:   protocol,
@@ -114,7 +115,7 @@ func (c *Client) Stop() {
 			}
 		}
 		c.cancel()
-		c.clientDone <- c.uid
+		c.clientDone <- c.Uid
 		conn := c.conn
 		conn.Close()
 		c.isStop = true
@@ -123,7 +124,7 @@ func (c *Client) Stop() {
 
 }
 func (c *Client) Write(msg []byte) {
-
+	fmt.Println("write", msg)
 	c.writeChan <- msg
 
 }
