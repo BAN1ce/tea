@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"tea/src/client"
 	"tea/src/mqtt"
+	"tea/src/mqtt/protocol"
 	"tea/src/server"
 	"tea/src/utils"
 )
@@ -22,18 +23,22 @@ func main() {
 
 	s2.SetProtocol(func() bufio.SplitFunc {
 
-		return mqtt.Input()
+		return protocol.Input()
 
 	})
 	s2.SetOnMessage(func(msg []byte, client *client.Client) error {
 
-		pack := mqtt.Decode(msg)
-
-		mqtt.HandleCmd(*pack,client)
-
+		fmt.Println("receiver: ")
 		for _, v := range msg {
 			fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
 		}
+
+		pack := protocol.Decode(msg)
+
+
+		mqtt.HandleCmd(*pack, client)
+
+
 		return nil
 	})
 
