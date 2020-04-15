@@ -128,6 +128,7 @@ func (s *Server) Run(ctx context.Context) {
 		}()
 
 	}
+	s.Manage.Run()
 
 	s.mutex.RUnlock()
 
