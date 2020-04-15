@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"tea/src/client"
+	"tea/src/manage"
 	"tea/src/mqtt"
 	"tea/src/mqtt/protocol"
 	"tea/src/server"
@@ -26,7 +26,7 @@ func main() {
 		return protocol.Input()
 
 	})
-	s2.SetOnMessage(func(msg []byte, client *client.Client) error {
+	s2.SetOnMessage(func(msg []byte, client *manage.Client) error {
 
 		fmt.Println("receiver: ")
 		for _, v := range msg {

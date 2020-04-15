@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"sync"
+	"tea/src/manage"
 	"tea/src/unpack"
 	"time"
 )
@@ -18,6 +19,7 @@ type OnConnect func(*Client) error
 
 type Client struct {
 	conn       net.Conn
+	manage     *manage.Manage
 	isStop     bool
 	writeChan  chan []byte
 	readChan   chan []byte
@@ -39,10 +41,11 @@ type Client struct {
 create a new client .
 */
 func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, protocol unpack.Protocol,
-	onMessage OnMessage, onConnect OnConnect, onClose OnClose) *Client {
+	onMessage OnMessage, onConnect OnConnect, onClose OnClose, manage *manage.Manage) *Client {
 
 	client := &Client{
 		conn:       conn,
+		manage:     manage,
 		isStop:     true,
 		writeChan:  make(chan []byte, 10),
 		readChan:   make(chan []byte, 10),
