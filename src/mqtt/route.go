@@ -1,7 +1,7 @@
 package mqtt
 
 import (
-	"tea/src/client"
+	"tea/src/manage"
 	"tea/src/mqtt/handle"
 	"tea/src/mqtt/protocol"
 )
@@ -15,7 +15,7 @@ func Boot() {
 
 }
 
-func HandleCmd(pack protocol.Pack, client *client.Client) {
+func HandleCmd(pack protocol.Pack, client *manage.Client) {
 
 	var getHandle handle.Handle
 	switch pack.Cmd {

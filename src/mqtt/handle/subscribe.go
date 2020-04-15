@@ -1,7 +1,7 @@
 package handle
 
 import (
-	"tea/src/client"
+	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/response"
 	"tea/src/mqtt/sub"
@@ -47,7 +47,7 @@ func NewSubscribe() *Subscribe {
 	return new(Subscribe)
 }
 
-func (s *Subscribe) Handle(pack protocol.Pack, client *client.Client) {
+func (s *Subscribe) Handle(pack protocol.Pack, client *manage.Client) {
 	p := newSubscribePack(pack)
 
 	qosSlice := make([]byte, 0)

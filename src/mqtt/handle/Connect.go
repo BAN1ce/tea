@@ -2,7 +2,7 @@ package handle
 
 import (
 	"fmt"
-	"tea/src/client"
+	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/response"
 	"tea/src/utils"
@@ -61,7 +61,7 @@ func NewConnect() *Connect {
 	return new(Connect)
 }
 
-func (c *Connect) Handle(pack protocol.Pack, client *client.Client) {
+func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 
 	connectPack := newConnectPack(pack)
 	body := connectPack.Data[connectPack.bodyStart:]

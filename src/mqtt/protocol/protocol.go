@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"tea/src/client"
+	"tea/src/manage"
 	"tea/src/mqtt/response"
 )
 
@@ -153,7 +153,7 @@ func Decode(data []byte) *Pack {
 	return pack
 }
 
-func Encode(response response.Response, client *client.Client) {
+func Encode(response response.Response, client *manage.Client) {
 
 	variableHeaderLength := 0
 	payloadLength := 0

@@ -1,4 +1,4 @@
-package client
+package manage
 
 import (
 	"bufio"
@@ -8,8 +8,8 @@ import (
 	"log"
 	"net"
 	"sync"
-	"tea/src/manage"
 	"tea/src/unpack"
+	"tea/src/utils"
 	"time"
 )
 
@@ -19,7 +19,7 @@ type OnConnect func(*Client) error
 
 type Client struct {
 	conn       net.Conn
-	manage     *manage.Manage
+	Manage     *Manage
 	isStop     bool
 	writeChan  chan []byte
 	readChan   chan []byte
@@ -41,11 +41,11 @@ type Client struct {
 create a new client .
 */
 func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, protocol unpack.Protocol,
-	onMessage OnMessage, onConnect OnConnect, onClose OnClose, manage *manage.Manage) *Client {
+	onMessage OnMessage, onConnect OnConnect, onClose OnClose, manage *Manage) *Client {
 
 	client := &Client{
 		conn:       conn,
-		manage:     manage,
+		Manage:     manage,
 		isStop:     true,
 		writeChan:  make(chan []byte, 10),
 		readChan:   make(chan []byte, 10),
@@ -127,7 +127,11 @@ func (c *Client) Stop() {
 
 }
 func (c *Client) Write(msg []byte) {
-	fmt.Println("write", msg)
+	fmt.Println("write")
+	for _, v := range msg {
+		fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
+	}
+
 	c.writeChan <- msg
 
 }
@@ -229,3 +233,5 @@ func (c *Client) heartBeatHandle(ctx context.Context) {
 		}
 	}
 }
+
+
