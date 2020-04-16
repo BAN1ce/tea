@@ -54,6 +54,7 @@ func (s *Subscribe) Handle(pack protocol.Pack, client *manage.Client) {
 	for topic, qos := range p.topicQos {
 		sub.AddSub(topic, client.Uid)
 		qosSlice = append(qosSlice, qos)
+		client.Topics[topic] = true
 	}
 	suback := response.NewSuback(p.identifier, qosSlice)
 
