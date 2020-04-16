@@ -22,10 +22,6 @@ func NewPublish(dup, qos, retain int, topicName []byte, identifier uint16, paylo
 		payload:    payload,
 	}
 }
-func (p Publish) GetCmd() byte {
-
-	return 0x3
-}
 
 func (p Publish) GetFixedHeaderWithoutLength() byte {
 	return 0x3
