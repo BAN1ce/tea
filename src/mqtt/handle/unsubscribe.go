@@ -3,6 +3,7 @@ package handle
 import (
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
+	"tea/src/mqtt/response"
 	"tea/src/mqtt/sub"
 	"tea/src/utils"
 )
@@ -49,5 +50,7 @@ func (u *UnSubscribe) Handle(pack protocol.Pack, client *manage.Client) {
 
 		sub.DeleteSub(topic, client.Uid)
 	}
+	unSuback := response.NewUnSuback(p.identifier)
+	protocol.Encode(unSuback, client)
 
 }
