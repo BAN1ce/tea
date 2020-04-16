@@ -102,8 +102,12 @@ func DeleteSub(topic string, clientId uuid.UUID) {
 			if sl.ListLength > 0 {
 				for tmp != nil {
 					if tmp.clientId == clientId {
-						tmp.pre.next = tmp.next
-						tmp.next.pre = tmp.pre
+						if tmp.pre != nil {
+							tmp.pre.next = tmp.next
+						}
+						if tmp.next != nil {
+							tmp.next.pre = tmp.pre
+						}
 					}
 					tmp = tmp.next
 
