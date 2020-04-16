@@ -2,10 +2,10 @@ package manage
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"net"
 	"sync"
+	"tea/src/mqtt/sub"
 	"tea/src/unpack"
 	"time"
 )
@@ -41,8 +41,16 @@ func (m *Manage) Run() {
 
 			select {
 			case clientId := <-m.clientDone:
-				fmt.Println("close clientId", clientId)
-				//todo 删除客户端的订阅信息
+				//fixme 删除客户端的订阅信息
+				if client, ok := m.clients.Load(clientId); ok {
+					if c, ok := client.(*Client); ok {
+						for topic, _ := range c.Topics {
+							sub.DeleteSub(topic, clientId)
+						}
+					}
+				}
+				m.clients.Delete(clientId)
+
 			}
 		}
 	}()
