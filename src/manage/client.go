@@ -35,6 +35,7 @@ type Client struct {
 	onMessage  OnMessage
 	onConnect  OnConnect
 	onClose    OnClose
+	Topics     map[string]bool
 }
 
 /**
@@ -56,6 +57,7 @@ func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, proto
 		onMessage:  onMessage,
 		onConnect:  onConnect,
 		onClose:    onClose,
+		Topics:     make(map[string]bool),
 	}
 
 	return client
