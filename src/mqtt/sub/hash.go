@@ -108,11 +108,11 @@ func DeleteSub(topic string, clientId uuid.UUID) {
 						if tmp.next != nil {
 							tmp.next.pre = tmp.pre
 						}
+						sl.ListLength--
 					}
 					tmp = tmp.next
 
 				}
-				sl.ListLength--
 				length = sl.ListLength
 			}
 			sl.mutex.Unlock()
