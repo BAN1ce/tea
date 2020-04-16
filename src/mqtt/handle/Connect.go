@@ -2,12 +2,14 @@ package handle
 
 import (
 	"fmt"
-	"tea/src/client"
+	"tea/src/manage"
+	"tea/src/mqtt/protocol"
+	"tea/src/mqtt/response"
 	"tea/src/utils"
 )
 
 type ConnectPack struct {
-	Pack
+	protocol.Pack
 	bodyStart     int
 	protocolName  string
 	protocolLevel int
@@ -27,7 +29,8 @@ type ConnectPack struct {
 	keepAlive     int
 }
 
-func newConnectPack(pack Pack) *ConnectPack {
+func newConnectPack(pack protocol.Pack) *ConnectPack {
+
 	c := new(ConnectPack)
 	c.Pack = pack
 	plc := utils.UtfLength(pack.Data[pack.FixHeaderLength:pack.FixHeaderLength+2]) + 2
@@ -58,7 +61,7 @@ func NewConnect() *Connect {
 	return new(Connect)
 }
 
-func (c *Connect) Handle(pack Pack, client *client.Client) {
+func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 
 	connectPack := newConnectPack(pack)
 	body := connectPack.Data[connectPack.bodyStart:]
@@ -94,6 +97,11 @@ func (c *Connect) Handle(pack Pack, client *client.Client) {
 		plc += passwordLength
 	}
 
+	connack := response.NewConnack(response.ACCEPT)
+
+	fmt.Println("connect handle")
+
+	protocol.Encode(connack, client)
 	//todo 用户名密码进行验证，为连接设置clientID，为客户端开辟session
 
 }

@@ -41,6 +41,7 @@ func (l *subList) GetNode() []uuid.UUID {
 
 		nodes[i] = tmp.clientId
 		i++
+		tmp = tmp.next
 	}
 	l.mutex.RUnlock()
 	return nodes
@@ -66,6 +67,7 @@ func newSubListNode(clientId uuid.UUID) *subListNode {
 	s := new(subListNode)
 
 	s.clientId = clientId
+	s.next = nil
 
 	return s
 }
@@ -100,8 +102,12 @@ func DeleteSub(topic string, clientId uuid.UUID) {
 			if sl.ListLength > 0 {
 				for tmp != nil {
 					if tmp.clientId == clientId {
-						tmp.pre.next = tmp.next
-						tmp.next.pre = tmp.pre
+						if tmp.pre != nil {
+							tmp.pre.next = tmp.next
+						}
+						if tmp.next != nil {
+							tmp.next.pre = tmp.pre
+						}
 					}
 					tmp = tmp.next
 
@@ -120,15 +126,20 @@ func DeleteSub(topic string, clientId uuid.UUID) {
 /**
 topic订阅的链表里添加一个新的客户端
 */
-func addSub(topic string, clientId uuid.UUID) {
+func AddSub(topic string, clientId uuid.UUID) {
 
 	l := newSubLis()
 	n := newSubListNode(clientId)
 	l.first = n
 	l.last = n
 	l.ListLength = 1
+	tmp := l.first
+	for tmp != nil {
+		tmp = tmp.next
+	}
+
 	sl, loaded := subTopicHashTable.LoadOrStore(topic, l)
-	if loaded == false {
+	if loaded == true {
 		value, ok := sl.(*subList)
 		if ok {
 			value.mutex.Lock()

@@ -1,6 +1,35 @@
 package utils
 
-import "strconv"
+import (
+	"strconv"
+	"unsafe"
+)
+
+func Uint16ToBytes(n uint16) []byte {
+	return []byte{
+		byte(n),
+		byte(n >> 8),
+	}
+}
+func BytesToUint16(array []byte) uint16 {
+	var data uint16 = 0
+	for i := 0; i < len(array); i++ {
+		data = data + uint16(uint(array[i])<<uint(8*i))
+	}
+
+	return data
+}
+
+func Int2Byte(data int) (ret []byte) {
+	var len uintptr = unsafe.Sizeof(data)
+	ret = make([]byte, len)
+	var tmp int = 0xff
+	var index uint = 0
+	for index = 0; index < uint(len); index++ {
+		ret[index] = byte((tmp << (index * 8) & data) >> (index * 8))
+	}
+	return ret
+}
 
 func ConvertToBin(num int) string {
 	s := ""

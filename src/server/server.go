@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"net"
 	"sync"
-	"tea/src/client"
+	"tea/src/manage"
 	"tea/src/unpack"
 	"time"
 )
@@ -18,15 +18,16 @@ type Server struct {
 	clients       sync.Map
 	clientDone    chan uuid.UUID
 	listener      net.Listener
-	protocol      unpack.Protocol
+	Protocol      unpack.Protocol
 	mutex         *sync.RWMutex
 	onServerStart func(s *Server)
-	onConnect     client.OnConnect
-	onMessage     client.OnMessage
-	onClose       client.OnClose
+	OnConnect     manage.OnConnect
+	OnMessage     manage.OnMessage
+	OnClose       manage.OnClose
 	hbContent     []byte
 	hbInterval    time.Duration
 	hbTimeout     time.Duration
+	Manage        *manage.Manage
 }
 
 func NewServer(addr net.Addr) *Server {
@@ -42,23 +43,37 @@ func NewServer(addr net.Addr) *Server {
 	if err != nil {
 		panic("Server Listen on " + addr.String() + " FAIL" + err.Error())
 	}
+
 	fmt.Println("Server Listen on " + addr.String() + " SUCCESS")
 	return server
 }
+func (s *Server) GetHbInterval() time.Duration {
 
-func (s *Server) SetOnConnect(onConnect client.OnConnect) {
-	s.onConnect = onConnect
+	return s.hbInterval
 }
 
-func (s *Server) SetOnMessage(onMessage client.OnMessage) {
-	s.onMessage = onMessage
+func (s *Server) GetHbTimeout() time.Duration {
+
+	return s.hbTimeout
+}
+func (s *Server) GetHbContent() []byte {
+
+	return s.hbContent
+
+}
+func (s *Server) SetOnConnect(onConnect manage.OnConnect) {
+	s.OnConnect = onConnect
 }
 
-func (s *Server) SetOnClose(onClose client.OnClose) {
-	s.onClose = onClose
+func (s *Server) SetOnMessage(onMessage manage.OnMessage) {
+	s.OnMessage = onMessage
+}
+
+func (s *Server) SetOnClose(onClose manage.OnClose) {
+	s.OnClose = onClose
 }
 func (s *Server) SetProtocol(protocol unpack.Protocol) {
-	s.protocol = protocol
+	s.Protocol = protocol
 }
 func (s *Server) SetHbInterval(d time.Duration) {
 	s.hbInterval = d
@@ -76,12 +91,13 @@ func (s *Server) Run(ctx context.Context) {
 	if s.isStop == false {
 		fmt.Println("Server is Running")
 	} else {
+		s.Manage = manage.NewManage(s.OnConnect, s.OnMessage, s.OnClose, s.Protocol)
 		if s.onServerStart != nil {
 			s.onServerStart(s)
 		}
 		s.isStop = true
-		if s.protocol == nil {
-			panic("Set protocol first please")
+		if s.Protocol == nil {
+			panic("Set Protocol first please")
 		}
 	}
 	s.mutex.Unlock()
@@ -112,6 +128,7 @@ func (s *Server) Run(ctx context.Context) {
 		}()
 
 	}
+	s.Manage.Run()
 
 	s.mutex.RUnlock()
 
@@ -119,21 +136,6 @@ func (s *Server) Run(ctx context.Context) {
 
 func (s *Server) acceptHandle(ctx context.Context, conn net.Conn) {
 
-	uid := uuid.New()
-
-	c := client.NewClient(conn, uid, s.clientDone, s.protocol, s.onMessage, s.onConnect, s.onClose)
-
-	s.clients.Store(uid, conn)
-
-	if s.hbInterval > 0 && s.hbContent != nil {
-		c.SetHbContent(s.hbContent)
-		c.SetHbInterval(s.hbInterval)
-	}
-
-	if s.hbTimeout > 0 {
-		c.SetHbTimeout(s.hbTimeout)
-	}
-
-	c.Run(ctx)
+	s.Manage.AddClient(ctx, conn)
 
 }

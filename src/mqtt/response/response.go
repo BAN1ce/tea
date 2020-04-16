@@ -2,7 +2,7 @@ package response
 
 type Response interface {
 	GetCmd() byte
-	GetFixedHeaderWithLength() byte
+	GetFixedHeaderWithoutLength() byte
 	GetVariableHeader() ([]byte, bool)
 	GetPayload() ([]byte, bool)
 }

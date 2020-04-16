@@ -1,9 +1,11 @@
-package mqtt
+package protocol
 
 import (
 	"bufio"
 	"errors"
-	"tea/src/mqtt/handle"
+	"fmt"
+	"tea/src/manage"
+	"tea/src/mqtt/response"
 )
 
 /**
@@ -76,6 +78,22 @@ const CMD_PINGRESP = 13;
  */
 const CMD_DISCONNECT = 14;
 
+type Pack struct {
+	Data            []byte
+	PackLength      int
+	FixedHeader     []byte
+	FixHeaderLength int
+	BodyLength      int
+	Cmd             int
+}
+
+func NewPack() *Pack {
+
+	pack := new(Pack)
+
+	return pack
+}
+
 /**
 mqtt 包解析
 */
@@ -108,10 +126,12 @@ func Input() bufio.SplitFunc {
 	}
 }
 
-func Decode(data []byte) *handle.Pack {
-	pack := handle.NewPack()
+func Decode(data []byte) *Pack {
+	pack := NewPack()
 
 	pack.Cmd = int(data[0] >> 4)
+
+	fmt.Println("cmd", pack.Cmd)
 	fixHeadLength := 1
 	multiplier := 1
 	bodyLength := 0
@@ -124,13 +144,53 @@ func Decode(data []byte) *handle.Pack {
 			break
 		}
 	}
+	pack.BodyLength = bodyLength
 	pack.FixedHeader = data[0:fixHeadLength]
 	pack.FixHeaderLength = fixHeadLength
 	pack.Data = data
+	pack.PackLength = len(data)
 
 	return pack
 }
 
-func Encode(pack handle.Pack) {
+func Encode(response response.Response, client *manage.Client) {
 
+	variableHeaderLength := 0
+	payloadLength := 0
+	variableHeader, ok := response.GetVariableHeader()
+	if ok {
+		variableHeaderLength = len(variableHeader)
+	}
+	payload, ok := response.GetPayload()
+	if ok == true {
+		payloadLength = len(payload)
+	}
+	totalLength := variableHeaderLength + payloadLength
+
+	responseData := make([]byte, 0)
+
+	responseData = append(responseData, response.GetFixedHeaderWithoutLength())
+
+	for {
+		digit := totalLength % 128
+		if digit > 0 {
+			if totalLength/128 > 0 {
+				digit = digit | 0x80
+			}
+			totalLength /= 128
+			responseData = append(responseData, uint8(digit))
+		} else {
+			break
+		}
+	}
+	if variableHeaderLength != 0 {
+		responseData = append(responseData, variableHeader...)
+	}
+	if payloadLength != 0 {
+		responseData = append(responseData, payload...)
+	}
+
+	fmt.Println("responseData", responseData)
+
+	client.Write(responseData)
 }

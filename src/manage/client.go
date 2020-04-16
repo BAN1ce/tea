@@ -1,13 +1,15 @@
-package client
+package manage
 
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"log"
 	"net"
 	"sync"
 	"tea/src/unpack"
+	"tea/src/utils"
 	"time"
 )
 
@@ -17,10 +19,11 @@ type OnConnect func(*Client) error
 
 type Client struct {
 	conn       net.Conn
+	Manage     *Manage
 	isStop     bool
 	writeChan  chan []byte
 	readChan   chan []byte
-	uid        uuid.UUID
+	Uid        uuid.UUID
 	clientDone chan<- uuid.UUID
 	hbTimer    *time.Timer
 	hbTimeout  time.Duration
@@ -32,26 +35,29 @@ type Client struct {
 	onMessage  OnMessage
 	onConnect  OnConnect
 	onClose    OnClose
+	Topics     map[string]bool
 }
 
 /**
 create a new client .
 */
 func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, protocol unpack.Protocol,
-	onMessage OnMessage, onConnect OnConnect, onClose OnClose) *Client {
+	onMessage OnMessage, onConnect OnConnect, onClose OnClose, manage *Manage) *Client {
 
 	client := &Client{
 		conn:       conn,
+		Manage:     manage,
 		isStop:     true,
 		writeChan:  make(chan []byte, 10),
 		readChan:   make(chan []byte, 10),
-		uid:        uuid,
+		Uid:        uuid,
 		clientDone: clientDone,
 		mutex:      new(sync.RWMutex),
 		protocol:   protocol,
 		onMessage:  onMessage,
 		onConnect:  onConnect,
 		onClose:    onClose,
+		Topics:     make(map[string]bool),
 	}
 
 	return client
@@ -114,7 +120,7 @@ func (c *Client) Stop() {
 			}
 		}
 		c.cancel()
-		c.clientDone <- c.uid
+		c.clientDone <- c.Uid
 		conn := c.conn
 		conn.Close()
 		c.isStop = true
@@ -123,6 +129,10 @@ func (c *Client) Stop() {
 
 }
 func (c *Client) Write(msg []byte) {
+	fmt.Println("write")
+	for _, v := range msg {
+		fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
+	}
 
 	c.writeChan <- msg
 
@@ -225,3 +235,5 @@ func (c *Client) heartBeatHandle(ctx context.Context) {
 		}
 	}
 }
+
+
