@@ -49,6 +49,7 @@ func AddClient(topic string, clientId uuid.UUID) {
 		last.clients.Store(clientId, true)
 		TreeMap.LoadOrStore(topics[0], first)
 		//todo 第一级topic已存在时
+
 	}
 
 }
