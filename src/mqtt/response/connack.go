@@ -21,7 +21,7 @@ func NewConnack(returnCode int) *Connack {
 
 func (c Connack) GetFixedHeaderWithoutLength() byte {
 
-	return c.cmd << 4
+	return 0x20
 }
 
 func (c Connack) GetVariableHeader() ([]byte, bool) {
