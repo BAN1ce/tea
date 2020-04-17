@@ -44,6 +44,15 @@ func NewServer(addr net.Addr) *Server {
 		panic("Server Listen on " + addr.String() + " FAIL" + err.Error())
 	}
 
+	fmt.Println(`
+  _______ ______          
+ |__   __|  ____|   /\    
+    | |  | |__     /  \   
+    | |  |  __|   / /\ \  
+    | |  | |____ / ____ \ 
+    |_|  |______/_/    \_\
+	`)
+
 	fmt.Println("Server Listen on " + addr.String() + " SUCCESS")
 	return server
 }
