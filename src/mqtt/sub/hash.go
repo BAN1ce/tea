@@ -126,7 +126,7 @@ func DeleteSub(topic string, clientId uuid.UUID) {
 /**
 topic订阅的链表里添加一个新的客户端
 */
-func AddSub(topic string, clientId uuid.UUID) {
+func AddHashSub(topic string, clientId uuid.UUID) {
 
 	l := newSubLis()
 	n := newSubListNode(clientId)
