@@ -1,6 +1,8 @@
 package sub
 
 import (
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"sync"
 )
@@ -18,6 +20,13 @@ func newNode(trace string) *Node {
 		trace: trace,
 	}
 }
+
+func (n *Node) TraceClients(course func(key, value interface{}) bool) {
+
+	n.clients.Range(course)
+
+}
+
 func AddTreeSub(topics []string, clientId uuid.UUID) {
 
 	var first *Node
@@ -38,14 +47,28 @@ func AddTreeSub(topics []string, clientId uuid.UUID) {
 	}
 	last.clients.Store(clientId, true)
 	if last != nil && first != nil {
-		last.clients.Store(clientId, true)
 		if root, ok := TreeMap.LoadOrStore(topics[0], first); ok {
 			// 第一级topic已存在时
 			if root, ok := root.(*Node); ok {
-				bfsWithAdd(root, first, treeHigh, clientId)
+				bfsWithAdd(root, clientId, topics)
 			}
 		}
 	}
+
+}
+func GetTreeSub(topics []string) (*Node, bool) {
+
+	if len(topics) > 0 {
+		topicFirst := topics[0]
+		if root, ok := TreeMap.Load(topicFirst); ok {
+			if root, ok := root.(*Node); ok {
+				return bfs(root, topics)
+			}
+		}
+
+	}
+
+	return nil, false
 
 }
 
@@ -53,39 +76,39 @@ func DeleteClient(topic string, clientId uuid.UUID) {
 
 }
 
-func bfsWithAdd(root *Node, newTree *Node, newTreeHigh int, clientId uuid.UUID) {
+func bfsWithAdd(root *Node, clientId uuid.UUID, topicSlice []string) {
 
 	queue := make([]*Node, 0)
 	queue = append(queue, root)
 	i := 1
-	parent := root
+	first := queue[0]
 	for len(queue) != 0 {
-		first := queue[0]
+		first = queue[0]
 		queue = queue[1:]
 		first.childes.Range(func(key, value interface{}) bool {
 			if value, ok := key.(*Node); ok {
-				if value.trace == newTree.trace {
-					queue = append(queue, value)
-					parent = root
-					i++
-					newTree.childes.Range(func(key, value interface{}) bool {
-						if node, ok := key.(*Node); ok {
-							newTree = node
-							return false
-						}
-						return true
-					})
-					return false
+				if i < len(topicSlice) {
+					if value.trace == topicSlice[i] {
+						queue = append(queue, value)
+						i++
+						return false
+					}
 				}
 			}
 			return true
 		})
-		if i == newTreeHigh {
-			queue[len(queue)-1].clients.Store(clientId, true)
-			return
-		} else {
-			parent.childes.Store(newTree, true)
+
+	}
+	if i == len(topicSlice) {
+		fmt.Println("i", i)
+		first.clients.Store(clientId, true)
+	} else {
+		//todo 添加一个子树在first节点下
+		childTree, err := topicSliceBeTree(topicSlice[i:])
+		if err != nil {
+			first.childes.Store(childTree, true)
 		}
+
 	}
 
 }
@@ -115,5 +138,26 @@ func bfs(root *Node, topics []string) (*Node, bool) {
 	}
 
 	return parent, false
+
+}
+func topicSliceBeTree(topicsSlice []string) (*Node, error) {
+
+	if len(topicsSlice) == 0 {
+		return nil, errors.New("topicSlice length can not be 0")
+	}
+
+	var first *Node
+	var last *Node
+	for i, t := range topicsSlice {
+		n := newNode(t)
+		if i == 0 {
+			first = n
+		} else {
+			last.childes.Store(n, true)
+		}
+		last = n
+	}
+
+	return first, nil
 
 }
