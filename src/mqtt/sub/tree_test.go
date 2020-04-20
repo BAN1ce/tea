@@ -75,6 +75,9 @@ func TestTreeAddPluralSub(t *testing.T) {
 
 }
 
+/**
+不同客户端订阅不同的topic，每个topic订阅的客户端数量不同
+*/
 func TestTreeDiffClientSub(t *testing.T) {
 
 	clientIds := make([][]uuid.UUID, 0)
