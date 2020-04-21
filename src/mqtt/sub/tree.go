@@ -20,8 +20,8 @@ func init() {
 节点的客户端ID map
 */
 type nodeClients struct {
-	m  map[uuid.UUID]interface{}
-	mu sync.RWMutex
+	M  map[uuid.UUID]interface{}
+	Mu sync.RWMutex
 }
 
 /**
@@ -37,7 +37,7 @@ type childNodes struct {
 */
 func newNodeClients() *nodeClients {
 	n := nodeClients{
-		m: make(map[uuid.UUID]interface{}),
+		M: make(map[uuid.UUID]interface{}),
 	}
 
 	return &n
@@ -59,8 +59,8 @@ func newChildNodes() *childNodes {
 */
 type Node struct {
 	topicSection string
-	childNodes   *childNodes
-	clients      *nodeClients
+	ChildNodes   *childNodes
+	Clients      *nodeClients
 }
 
 /**
@@ -69,8 +69,8 @@ type Node struct {
 func newNode(topicSection string) *Node {
 	n := Node{
 		topicSection: topicSection,
-		childNodes:   newChildNodes(),
-		clients:      newNodeClients(),
+		ChildNodes:   newChildNodes(),
+		Clients:      newNodeClients(),
 	}
 
 	return &n
@@ -92,11 +92,11 @@ func topicSliceBeTree(topicsSlice []string, clientId uuid.UUID) (*Node, error) {
 		if i == 0 {
 			first = n
 		} else {
-			last.childNodes.m[t] = n
+			last.ChildNodes.m[t] = n
 		}
 		last = n
 	}
-	last.clients.m[clientId] = true
+	last.Clients.M[clientId] = true
 
 	return first, nil
 
@@ -115,21 +115,21 @@ func AddTreeSub(topicSlice []string, clientId uuid.UUID) {
 		first = queue[0]
 		queue = queue[1:]
 
-		first.childNodes.mu.Lock()
-		if childNode, ok := first.childNodes.m[topicSlice[i]]; ok {
+		first.ChildNodes.mu.Lock()
+		if childNode, ok := first.ChildNodes.m[topicSlice[i]]; ok {
 			queue = append(queue, childNode)
 			i++
 			if i == len(topicSlice) {
-				childNode.clients.mu.Lock()
-				childNode.clients.m[clientId] = true
-				childNode.clients.mu.Unlock()
+				childNode.Clients.Mu.Lock()
+				childNode.Clients.M[clientId] = true
+				childNode.Clients.Mu.Unlock()
 			}
 		} else {
 			if childTree, err := topicSliceBeTree(topicSlice[i:], clientId); err == nil {
-				first.childNodes.m[topicSlice[i]] = childTree
+				first.ChildNodes.m[topicSlice[i]] = childTree
 			}
 		}
-		first.childNodes.mu.Unlock()
+		first.ChildNodes.mu.Unlock()
 	}
 
 }
@@ -146,12 +146,12 @@ func GetTreeSub(topicSlice []string) (*Node, bool) {
 		first = queue[0]
 		queue = queue[1:]
 
-		first.childNodes.mu.RLock()
-		if childNode, ok := first.childNodes.m[topicSlice[i]]; ok {
+		first.ChildNodes.mu.RLock()
+		if childNode, ok := first.ChildNodes.m[topicSlice[i]]; ok {
 			queue = append(queue, childNode)
 			i++
 		}
-		first.childNodes.mu.RUnlock()
+		first.ChildNodes.mu.RUnlock()
 		if i == len(topicSlice) {
 			return queue[len(queue)-1], true
 		}
@@ -173,21 +173,21 @@ func DeleteTreeSub(topicSlice []string, clientId uuid.UUID) {
 		first = queue[0]
 		queue = queue[1:]
 
-		first.childNodes.mu.Lock()
-		if childNode, ok := first.childNodes.m[topicSlice[i]]; ok {
+		first.ChildNodes.mu.Lock()
+		if childNode, ok := first.ChildNodes.m[topicSlice[i]]; ok {
 			queue = append(queue, childNode)
 			i++
 			if i == len(topicSlice) {
-				childNode.clients.mu.Lock()
-				delete(childNode.clients.m, clientId)
-				if len(childNode.clients.m) == 0 {
-					delete(first.childNodes.m, topicSlice[i-1])
+				childNode.Clients.Mu.Lock()
+				delete(childNode.Clients.M, clientId)
+				if len(childNode.Clients.M) == 0 {
+					delete(first.ChildNodes.m, topicSlice[i-1])
 				}
-				childNode.clients.mu.Unlock()
+				childNode.Clients.Mu.Unlock()
 
 			}
 		}
-		first.childNodes.mu.Unlock()
+		first.ChildNodes.mu.Unlock()
 	}
 
 }
@@ -205,12 +205,12 @@ func Bfs(root *Node, topicSlice []string) (*Node, bool) {
 		first = queue[0]
 		queue = queue[1:]
 
-		first.childNodes.mu.RLock()
-		if childNode, ok := first.childNodes.m[topicSlice[i]]; ok {
+		first.ChildNodes.mu.RLock()
+		if childNode, ok := first.ChildNodes.m[topicSlice[i]]; ok {
 			queue = append(queue, childNode)
 			i++
 		}
-		first.childNodes.mu.RUnlock()
+		first.ChildNodes.mu.RUnlock()
 		if i == len(topicSlice)-1 {
 			return queue[len(queue)-1], true
 		}
