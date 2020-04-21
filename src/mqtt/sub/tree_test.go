@@ -18,25 +18,32 @@ func TestTreeAddASub(t *testing.T) {
 
 	AddTreeSub(topics, clientId)
 
-	flag := false
 	node, ok := GetTreeSub(topics)
 	if ok {
-		node.clients.Range(func(key, value interface{}) bool {
-			fmt.Println(key, value)
-			if key == clientId {
-				flag = true
-				t.Log("Pass")
-				return false
+		flag := true
+		for k, _ := range node.clients.m {
+			if k == clientId {
+				flag = false
 			}
-			return true
-		})
-	}
-
-	if flag == false {
-		t.Error("can no find node")
+		}
+		if flag {
+			t.Error("Get Node But Can Find ClientID")
+			t.FailNow()
+		}
+	} else {
+		t.Error("Can Not Find Node")
 		t.FailNow()
-
 	}
+
+	DeleteTreeSub(topics, clientId)
+
+	node, ok = GetTreeSub(topics)
+	if !ok {
+		t.Log("Delete Sub Success")
+	} else {
+		t.Error("Delete Sub Fail")
+	}
+
 }
 
 /**
@@ -56,57 +63,61 @@ func TestTreeAddPluralSub(t *testing.T) {
 	}
 
 	for i := 0; i < 10; i++ {
-		flag := false
 		node, ok := GetTreeSub(strings.Split(topics[i], "/"))
 		if ok {
-			node.clients.Range(func(key, value interface{}) bool {
-				if key == clientIds[i] {
-					flag = true
-					return false
+
+			flag := true
+			for k, _ := range node.clients.m {
+				if k == clientIds[i] {
+					flag = false
 				}
-				return true
-			})
-		}
-		if flag == false {
-			t.Error("can not find sub", clientIds[i], topics[i])
+			}
+			if flag {
+				t.Error("Get Node But Can Find ClientID")
+			}
+
+		} else {
+			t.Error("Can Not Find Node")
 		}
 
 	}
-
 }
 
 /**
-不同客户端订阅不同的topic，每个topic订阅的客户端数量不同
+  不同客户端订阅不同的topic，每个topic订阅的客户端数量不同
 */
 func TestTreeDiffClientSub(t *testing.T) {
-
-	clientIds := make([][]uuid.UUID, 0)
+	clientIds := make([]map[uuid.UUID]bool, 0)
 	topics := make([]string, 0)
 	for i := 0; i < 10; i++ {
 		topic := fmt.Sprintf("product%d/device%d/get", i, i)
-		cs := make([]uuid.UUID, 0)
+		cs := make(map[uuid.UUID]bool)
 		for j := 0; j < i+1; j++ {
 			clientId := uuid.New()
-			cs = append(cs, clientId)
+			cs[clientId] = true
 		}
 		clientIds = append(clientIds, cs)
 		topics = append(topics, topic)
 		topicSplit := strings.Split(topic, "/")
-		for _, v := range cs {
-			AddTreeSub(topicSplit, v)
+		for k, _ := range cs {
+			AddTreeSub(topicSplit, k)
 		}
 	}
 
 	for i := 0; i < 10; i++ {
 		topic := fmt.Sprintf("product%d/device%d/get", i, i)
-		n, ok := GetTreeSub(strings.Split(topic, "/"))
+		node, ok := GetTreeSub(strings.Split(topic, "/"))
 		if ok {
 
-			for _, v := range clientIds[i] {
-
-				if _, ok := n.clients.Load(v); ok == false {
-					t.Error("topic can not find a client sub ", topic, v)
+			flag := true
+			for k, _ := range node.clients.m {
+				if _, ok := clientIds[i][k]; ok {
+				} else {
+					flag = false
 				}
+			}
+			if flag {
+				t.Error("Get Node But Can Find ClientID")
 			}
 
 		} else {
@@ -114,4 +125,5 @@ func TestTreeDiffClientSub(t *testing.T) {
 		}
 
 	}
+
 }
