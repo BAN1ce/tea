@@ -45,7 +45,7 @@ func (m *Manage) Run() {
 				if client, ok := m.clients.Load(clientId); ok {
 					if c, ok := client.(*Client); ok {
 						for topic, _ := range c.Topics {
-							sub.DeleteSub(topic, clientId)
+							sub.DeleteHashSub(topic, clientId)
 						}
 					}
 				}
