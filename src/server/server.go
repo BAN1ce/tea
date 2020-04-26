@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"log"
 	"net"
 	"sync"
 	"tea/src/manage"
@@ -128,7 +129,7 @@ func (s *Server) Run(ctx context.Context) {
 			for {
 				conn, err := s.listener.Accept()
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 					continue
 				}
 				go s.acceptHandle(ctx, conn)
