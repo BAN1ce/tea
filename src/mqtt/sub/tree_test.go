@@ -21,7 +21,7 @@ func TestTreeAddASub(t *testing.T) {
 	node, ok := GetTreeSub(topics)
 	if ok {
 		flag := true
-		for k, _ := range node.clients.m {
+		for k, _ := range node.Clients.M {
 			if k == clientId {
 				flag = false
 			}
@@ -67,7 +67,7 @@ func TestTreeAddPluralSub(t *testing.T) {
 		if ok {
 
 			flag := true
-			for k, _ := range node.clients.m {
+			for k, _ := range node.Clients.M {
 				if k == clientIds[i] {
 					flag = false
 				}
@@ -110,7 +110,7 @@ func TestTreeDiffClientSub(t *testing.T) {
 		if ok {
 
 			flag := true
-			for k, _ := range node.clients.m {
+			for k, _ := range node.Clients.M {
 				if _, ok := clientIds[i][k]; ok {
 				} else {
 					flag = false
