@@ -1,7 +1,7 @@
 package handle
 
 import (
-	"fmt"
+	"strings"
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/sub"
@@ -39,7 +39,6 @@ type Publish struct {
 }
 
 func newPublishPack(pack protocol.Pack) *PublishPack {
-	fmt.Println("hello")
 	p := new(PublishPack)
 	p.Pack = pack
 	p.retain = int(pack.FixedHeader[0] & 0x1)
@@ -51,7 +50,6 @@ func newPublishPack(pack protocol.Pack) *PublishPack {
 	topicNameLength := utils.UtfLength(pack.Data[plc : plc+2])
 	plc += 2
 	p.topicName = string(pack.Data[plc : plc+topicNameLength])
-	fmt.Println(p.topicName, "topicName")
 	plc += topicNameLength
 	if p.qos > 0 {
 		p.identifier = utils.BytesToUint16(pack.Data[plc : plc+2])
@@ -61,7 +59,6 @@ func newPublishPack(pack protocol.Pack) *PublishPack {
 
 	p.payload = pack.Data[plc : plc+payloadLength]
 
-	fmt.Println(string(p.payload))
 
 	return p
 
@@ -75,15 +72,13 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 
 	publishPack := newPublishPack(pack)
 
+
+	// 根据topic 找寻订阅topic的客户端将消息发布给客户端
+
 	clientList, ok := sub.GetTopicSubClients(publishPack.topicName)
-
-	fmt.Println("receiver publish payload", string(publishPack.payload))
-
 	if ok {
 		clients := clientList.GetNode()
-
 		for _, clientId := range clients {
-
 			if c, ok := client.Manage.GetClient(clientId); ok {
 
 				c.Write(pack.Data)
@@ -91,9 +86,24 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 			}
 
 		}
-		fmt.Println(clients)
 	}
 
-	//todo 根据topic 找寻订阅topic的客户端将消息发布给客户端
+	topicSlice := strings.Split(publishPack.topicName, "/")
+
+	//node, ok := sub.GetTreeSub(topicSlice)
+
+	nodes := sub.GetWildCards(topicSlice)
+
+	for _, node := range nodes {
+
+		node.Clients.Mu.RLock()
+		for clientId, _ := range node.Clients.M {
+			if c, ok := client.Manage.GetClient(clientId); ok {
+				c.Write(pack.Data)
+				//protocol.Encode(publishPack, c)
+			}
+		}
+		node.Clients.Mu.RUnlock()
+	}
 
 }
