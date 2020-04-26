@@ -1,6 +1,7 @@
 package handle
 
 import (
+	"strings"
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/response"
@@ -47,10 +48,19 @@ func (u *UnSubscribe) Handle(pack protocol.Pack, client *manage.Client) {
 	p := newUnSubscribePack(pack)
 
 	for _, topic := range p.topics {
+		topicSlice := strings.Split(topic, "/")
 
-		sub.DeleteSub(topic, client.Uid)
+		//fixme delete wildcards sub 删除模糊订阅
+		if utils.HasWildcard(topicSlice) {
+			sub.DeleteTreeSub(topicSlice, client.Uid)
+		} else {
+			sub.DeleteHashSub(topic, client.Uid)
+		}
+
 	}
+
 	unSuback := response.NewUnSuback(p.identifier)
+
 	protocol.Encode(unSuback, client)
 
 }
