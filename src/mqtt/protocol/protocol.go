@@ -3,7 +3,6 @@ package protocol
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"tea/src/manage"
 	"tea/src/mqtt/response"
 )
@@ -79,7 +78,7 @@ const CMD_PINGRESP = 13
 const CMD_DISCONNECT = 14
 
 type Pack struct {
-	Data            []byte
+	Data            []byte //一包完整的数据
 	PackLength      int
 	FixedHeader     []byte
 	FixHeaderLength int
@@ -131,7 +130,6 @@ func Decode(data []byte) *Pack {
 
 	pack.Cmd = int(data[0] >> 4)
 
-	fmt.Println("cmd", pack.Cmd)
 	fixHeadLength := 1
 	multiplier := 1
 	bodyLength := 0
