@@ -1,6 +1,7 @@
 package handle
 
 import (
+	"strings"
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/response"
@@ -52,9 +53,16 @@ func (s *Subscribe) Handle(pack protocol.Pack, client *manage.Client) {
 
 	qosSlice := make([]byte, 0)
 	for topic, qos := range p.topicQos {
-		sub.AddSub(topic, client.Uid)
+		topicSlice := strings.Split(topic, "/")
 		qosSlice = append(qosSlice, qos)
 		client.Topics[topic] = true
+		// 客户端模糊订阅和绝对订阅分开记录
+		if utils.HasWildcard(topicSlice) {
+			sub.AddTreeSub(topicSlice, client.Uid)
+		} else {
+			sub.AddHashSub(topic, client.Uid)
+		}
+
 	}
 	suback := response.NewSuback(p.identifier, qosSlice)
 

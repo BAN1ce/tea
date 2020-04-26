@@ -3,7 +3,6 @@ package protocol
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"tea/src/manage"
 	"tea/src/mqtt/response"
 )
@@ -11,75 +10,75 @@ import (
 /**
  * CONNECT Packet.
  */
-const CMD_CONNECT = 1;
+const CMD_CONNECT = 1
 
 /**
  * CONNACK
  */
-const CMD_CONNACK = 2;
+const CMD_CONNACK = 2
 
 /**
  * PUBLISH
  */
-const CMD_PUBLISH = 3;
+const CMD_PUBLISH = 3
 
 /**
  * PUBACK
  */
-const CMD_PUBACK = 4;
+const CMD_PUBACK = 4
 
 /**
  * PUBREC
  */
-const CMD_PUBREC = 5;
+const CMD_PUBREC = 5
 
 /**
  * PUBREL
  */
-const CMD_PUBREL = 6;
+const CMD_PUBREL = 6
 
 /**
  * PUBCOMP
  */
-const CMD_PUBCOMP = 7;
+const CMD_PUBCOMP = 7
 
 /**
  * SUBSCRIBE
  */
-const CMD_SUBSCRIBE = 8;
+const CMD_SUBSCRIBE = 8
 
 /**
  * SUBACK
  */
-const CMD_SUBACK = 9;
+const CMD_SUBACK = 9
 
 /**
  * UNSUBSCRIBE
  */
-const CMD_UNSUBSCRIBE = 10;
+const CMD_UNSUBSCRIBE = 10
 
 /**
  * UNSUBACK
  */
-const CMD_UNSUBACK = 11;
+const CMD_UNSUBACK = 11
 
 /**
  * PINGREQ
  */
-const CMD_PINGREQ = 12;
+const CMD_PINGREQ = 12
 
 /**
  * PINGRESP
  */
-const CMD_PINGRESP = 13;
+const CMD_PINGRESP = 13
 
 /**
  * DISCONNECT
  */
-const CMD_DISCONNECT = 14;
+const CMD_DISCONNECT = 14
 
 type Pack struct {
-	Data            []byte
+	Data            []byte //一包完整的数据
 	PackLength      int
 	FixedHeader     []byte
 	FixHeaderLength int
@@ -113,7 +112,7 @@ func Input() bufio.SplitFunc {
 				bodyLength += int(data[i]&127) * multiplier
 				headLength++
 				if data[i]&128 == 1 {
-					multiplier *= 128;
+					multiplier *= 128
 				} else {
 					break
 				}
@@ -131,7 +130,6 @@ func Decode(data []byte) *Pack {
 
 	pack.Cmd = int(data[0] >> 4)
 
-	fmt.Println("cmd", pack.Cmd)
 	fixHeadLength := 1
 	multiplier := 1
 	bodyLength := 0
@@ -139,7 +137,7 @@ func Decode(data []byte) *Pack {
 		bodyLength += int(data[i]&127) * multiplier
 		fixHeadLength++
 		if data[i]&128 == 1 {
-			multiplier *= 128;
+			multiplier *= 128
 		} else {
 			break
 		}
@@ -171,6 +169,9 @@ func Encode(response response.Response, client *manage.Client) {
 
 	responseData = append(responseData, response.GetFixedHeaderWithoutLength())
 
+	if totalLength == 0 {
+		responseData = append(responseData, uint8(0))
+	}
 	for {
 		digit := totalLength % 128
 		if digit > 0 {
@@ -183,14 +184,13 @@ func Encode(response response.Response, client *manage.Client) {
 			break
 		}
 	}
+
 	if variableHeaderLength != 0 {
 		responseData = append(responseData, variableHeader...)
 	}
 	if payloadLength != 0 {
 		responseData = append(responseData, payload...)
 	}
-
-	fmt.Println("responseData", responseData)
 
 	client.Write(responseData)
 }

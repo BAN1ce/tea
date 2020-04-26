@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"log"
 	"net"
 	"sync"
 	"tea/src/manage"
@@ -43,6 +44,15 @@ func NewServer(addr net.Addr) *Server {
 	if err != nil {
 		panic("Server Listen on " + addr.String() + " FAIL" + err.Error())
 	}
+
+	fmt.Println(`
+  _______ ______          
+ |__   __|  ____|   /\    
+    | |  | |__     /  \   
+    | |  |  __|   / /\ \  
+    | |  | |____ / ____ \ 
+    |_|  |______/_/    \_\
+	`)
 
 	fmt.Println("Server Listen on " + addr.String() + " SUCCESS")
 	return server
@@ -119,7 +129,7 @@ func (s *Server) Run(ctx context.Context) {
 			for {
 				conn, err := s.listener.Accept()
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 					continue
 				}
 				go s.acceptHandle(ctx, conn)

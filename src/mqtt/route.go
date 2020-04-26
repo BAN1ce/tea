@@ -30,6 +30,12 @@ func HandleCmd(pack protocol.Pack, client *manage.Client) {
 	case 10:
 		getHandle = handle.NewUnSubscribe()
 
+	case 12:
+		getHandle = handle.NewHb()
+
+	case 14:
+		getHandle = handle.NewDisconnect()
+
 	}
 
 	if getHandle != nil {

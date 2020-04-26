@@ -12,7 +12,6 @@ import (
 	"tea/src/mqtt"
 	"tea/src/mqtt/protocol"
 	"tea/src/server"
-	"tea/src/utils"
 )
 
 func main() {
@@ -28,10 +27,10 @@ func main() {
 	})
 	s2.SetOnMessage(func(msg []byte, client *manage.Client) error {
 
-		fmt.Println("receiver: ")
-		for _, v := range msg {
-			fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
-		}
+		//fmt.Println("receiver: ")
+		//for _, v := range msg {
+		//	fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
+		//}
 
 		pack := protocol.Decode(msg)
 

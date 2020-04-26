@@ -89,7 +89,7 @@ func GetTopicSubClients(topic string) (*subList, bool) {
 /**
 删除topic订阅中的一个客户端
 */
-func DeleteSub(topic string, clientId uuid.UUID) {
+func DeleteHashSub(topic string, clientId uuid.UUID) {
 
 	sl, ok := subTopicHashTable.Load(topic)
 	if ok {
@@ -108,11 +108,11 @@ func DeleteSub(topic string, clientId uuid.UUID) {
 						if tmp.next != nil {
 							tmp.next.pre = tmp.pre
 						}
+						sl.ListLength--
 					}
 					tmp = tmp.next
 
 				}
-				sl.ListLength--
 				length = sl.ListLength
 			}
 			sl.mutex.Unlock()
@@ -126,7 +126,7 @@ func DeleteSub(topic string, clientId uuid.UUID) {
 /**
 topic订阅的链表里添加一个新的客户端
 */
-func AddSub(topic string, clientId uuid.UUID) {
+func AddHashSub(topic string, clientId uuid.UUID) {
 
 	l := newSubLis()
 	n := newSubListNode(clientId)

@@ -3,13 +3,11 @@ package manage
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"log"
 	"net"
 	"sync"
 	"tea/src/unpack"
-	"tea/src/utils"
 	"time"
 )
 
@@ -129,12 +127,15 @@ func (c *Client) Stop() {
 
 }
 func (c *Client) Write(msg []byte) {
-	fmt.Println("write")
-	for _, v := range msg {
-		fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
-	}
+	//for _, v := range msg {
+	//	fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
+	//}
 
-	c.writeChan <- msg
+	c.mutex.RLock()
+	if c.isStop == false {
+		c.writeChan <- msg
+	}
+	c.mutex.RUnlock()
 
 }
 
@@ -235,5 +236,3 @@ func (c *Client) heartBeatHandle(ctx context.Context) {
 		}
 	}
 }
-
-
