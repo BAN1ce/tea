@@ -89,7 +89,7 @@ func GetTopicSubClients(topic string) (*subList, bool) {
 /**
 删除topic订阅中的一个客户端
 */
-func DeleteSub(topic string, clientId uuid.UUID) {
+func DeleteHashSub(topic string, clientId uuid.UUID) {
 
 	sl, ok := subTopicHashTable.Load(topic)
 	if ok {
