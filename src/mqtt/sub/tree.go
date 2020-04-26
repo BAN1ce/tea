@@ -138,6 +138,8 @@ func AddTreeSub(topicSlice []string, clientId uuid.UUID) {
 获取topic在订阅树中保存的节点，未找到返回false
 */
 func GetTreeSub(topicSlice []string) (*Node, bool) {
+
+	//fixme 订阅树搜索不需每次从根节点开始搜索，topicSlice长度不同，从不同的节点开始搜索，提升查询效率
 	queue := make([]*Node, 0)
 	queue = append(queue, TreeRoot)
 	i := 0
@@ -157,6 +159,70 @@ func GetTreeSub(topicSlice []string) (*Node, bool) {
 		}
 	}
 	return nil, false
+}
+
+/**
+发布到的topic所有可能匹配的通配topic
+
+product/device/get
+所有含+的模糊topic
+
+[+ device1 get]
+[+ + get]
+[+ + +]
+
+[product1 + get]
+[product1 + +]
+
+[product1 device1 +]
+
+*/
+func GetWildCards(topicSlice []string) []*Node {
+
+	subNodes := make([]*Node, 0)
+	tmp := make([]string, len(topicSlice))
+	for i := 0; i < len(topicSlice); i++ {
+		tmpIndex := 0
+		for ; tmpIndex < i; tmpIndex++ {
+			tmp[tmpIndex] = topicSlice[tmpIndex]
+		}
+		for j := 0; j < len(topicSlice)-i; j++ {
+			tmpWildCardIndex := tmpIndex
+			for k := 0; k <= j; k++ {
+				tmp[tmpWildCardIndex] = "+"
+				tmpWildCardIndex++
+			}
+			for ; tmpWildCardIndex < len(topicSlice); tmpWildCardIndex++ {
+				tmp[tmpWildCardIndex] = topicSlice[tmpWildCardIndex]
+			}
+			searchTopicSlice := tmp[0 : j+i+1]
+			_, ok := GetTreeSub(searchTopicSlice)
+			if ok {
+				node, ok := GetTreeSub(tmp)
+				if ok {
+					subNodes = append(subNodes, node)
+				}
+
+			} else {
+				break
+			}
+		}
+	}
+
+	for i := 1; i < len(topicSlice); i++ {
+		searchTopicSlice := make([]string, i)
+		copy(searchTopicSlice, topicSlice[0:i])
+		_, ok := GetTreeSub(searchTopicSlice)
+		if ok {
+			node, ok := GetTreeSub(append(searchTopicSlice, "#"))
+			if ok {
+				subNodes = append(subNodes, node)
+			}
+		} else {
+			break
+		}
+	}
+	return subNodes
 }
 
 /**
@@ -215,6 +281,5 @@ func Bfs(root *Node, topicSlice []string) (*Node, bool) {
 			return queue[len(queue)-1], true
 		}
 	}
-
 	return parent, false
 }

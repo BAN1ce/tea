@@ -54,19 +54,13 @@ func (s *Subscribe) Handle(pack protocol.Pack, client *manage.Client) {
 	qosSlice := make([]byte, 0)
 	for topic, qos := range p.topicQos {
 		topicSlice := strings.Split(topic, "/")
-		flag := true
+		qosSlice = append(qosSlice, qos)
+		client.Topics[topic] = true
 		// 客户端模糊订阅和绝对订阅分开记录
-		for _, v := range topicSlice {
-			if v == "#" || v == "+" {
-				sub.AddTreeSub(topicSlice, client.Uid)
-				flag = false
-				break
-			}
-		}
-		if flag {
+		if utils.HasWildcard(topicSlice) {
+			sub.AddTreeSub(topicSlice, client.Uid)
+		} else {
 			sub.AddHashSub(topic, client.Uid)
-			qosSlice = append(qosSlice, qos)
-			client.Topics[topic] = true
 		}
 
 	}
