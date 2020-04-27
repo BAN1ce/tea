@@ -4,9 +4,11 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"net"
+	"strings"
 	"sync"
 	"tea/src/mqtt/sub"
 	"tea/src/unpack"
+	"tea/src/utils"
 	"time"
 )
 
@@ -41,11 +43,17 @@ func (m *Manage) Run() {
 
 			select {
 			case clientId := <-m.clientDone:
-				//fixme 删除客户端的订阅信息
+				//fixme 删除客户端的两种订阅
 				if client, ok := m.clients.Load(clientId); ok {
 					if c, ok := client.(*Client); ok {
 						for topic, _ := range c.Topics {
-							sub.DeleteHashSub(topic, clientId)
+							topics := strings.Split(topic, "/")
+							if utils.HasWildcard(topics) {
+								sub.DeleteTreeSub(topics, clientId)
+							} else {
+								sub.DeleteHashSub(topic, clientId)
+							}
+
 						}
 					}
 				}
