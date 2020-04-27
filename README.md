@@ -1,4 +1,59 @@
 # Tea
 
 
-* 一个简单的MQTT Broker .
+* 一个简单的MQTT Broker，目前只支持Qos=1等级。
+
+
+## 项目目录说明
+
+``` 
+
+├── README.md
+├── example
+│   ├── main.go
+│   └── tree.go
+├── go.mod
+├── go.sum
+└── src
+    ├── manage
+    │   ├── client.go 客户端
+    │   └── manage.go 客户端管理
+    ├── mqtt
+    │   ├── handle 处理客户端发送的数据
+    │   │   ├── connect.go
+    │   │   ├── disconnect.go
+    │   │   ├── handle.go
+    │   │   ├── hb.go
+    │   │   ├── publish.go
+    │   │   ├── subscribe.go
+    │   │   └── unsubscribe.go
+    │   ├── protocol mqtt协议的解析
+    │   │   └── protocol.go
+    │   ├── response 返回给客户端的包封装
+    │   │   ├── connack.go
+    │   │   ├── hback.go
+    │   │   ├── publish.go
+    │   │   ├── response.go
+    │   │   ├── suback.go
+    │   │   └── unsuback.go
+    │   ├── route.go mqtt命令路由
+    │   └── sub
+    │       ├── hash.go 绝对订阅
+    │       ├── tree.go 订阅树订阅
+    │       └── tree_test.go
+    ├── server
+    │   └── server.go
+    ├── unpack
+    │   └── protocol.go
+    └── utils 工具包
+        ├── check.go
+        └── convert.go
+
+```
+
+
+
+
+# License
+
+MIT
