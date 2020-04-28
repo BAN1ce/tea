@@ -1,7 +1,7 @@
 # Tea
 
 
-* 一个简单的MQTT Broker，目前只支持Qos=1等级。
+* 一个简单的MQTT Broker，目前只支持Qos=0等级。
 
 
 ## 项目目录说明
