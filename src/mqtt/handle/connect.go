@@ -3,51 +3,10 @@ package handle
 import (
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
+	"tea/src/mqtt/request"
 	"tea/src/mqtt/response"
 	"tea/src/utils"
 )
-
-type ConnectPack struct {
-	protocol.Pack
-	bodyStart     int
-	protocolName  string
-	protocolLevel int
-	connectFlags  byte
-	reserved      int
-	cleanSession  int
-	willFlag      int
-	willQos       int
-	willRetain    int
-	passwordFlag  int
-	userNameFlag  int
-	ClientId      string
-	WillTopic     string
-	WillMessage   string
-	UserName      string
-	Password      string
-	keepAlive     int
-}
-
-func newConnectPack(pack protocol.Pack) *ConnectPack {
-
-	c := new(ConnectPack)
-	c.Pack = pack
-	plc := utils.UtfLength(pack.Data[pack.FixHeaderLength:pack.FixHeaderLength+2]) + 2
-	c.protocolName = string(pack.Data[pack.FixHeaderLength+2 : pack.FixHeaderLength+plc])
-	c.protocolLevel = int(pack.Data[pack.FixHeaderLength+plc+1])
-	c.connectFlags = pack.Data[pack.FixHeaderLength+plc+1]
-	c.reserved = int(c.connectFlags & 1)
-	c.cleanSession = int((c.connectFlags & 2) >> 1)
-	c.willFlag = int((c.connectFlags & 4) >> 2)
-	c.willQos = int((c.connectFlags & 24) >> 3)
-	c.willRetain = int((c.connectFlags & 32) >> 5)
-	c.passwordFlag = int((c.connectFlags & 64) >> 6)
-	c.userNameFlag = int((c.connectFlags & 128) >> 7)
-	c.keepAlive = utils.UtfLength(pack.Data[pack.FixHeaderLength+plc+2 : pack.FixHeaderLength+plc+4])
-	c.bodyStart = plc + pack.FixHeaderLength + 4
-
-	return c
-}
 
 type Connect struct {
 }
@@ -58,10 +17,10 @@ func NewConnect() *Connect {
 
 func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 
-	connectPack := newConnectPack(pack)
-	body := connectPack.Data[connectPack.bodyStart:]
-	// reserved 不为0时 断开客户端
-	if connectPack.reserved != 0 {
+	connectPack := request.NewConnectPack(pack)
+	body := connectPack.Data[connectPack.BodyStart:]
+	// Reserved 不为0时 断开客户端
+	if connectPack.Reserved != 0 {
 		client.Stop()
 	}
 	plc := 0
@@ -69,7 +28,7 @@ func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 	plc += 2
 	connectPack.ClientId = string(body[2 : clientIdLength+plc])
 	plc += clientIdLength
-	if connectPack.willFlag == 1 {
+	if connectPack.WillFlag == 1 {
 		willTopicLength := utils.UtfLength(body[plc : plc+2])
 		plc += 2
 		connectPack.WillTopic = string(body[plc : willTopicLength+plc])
@@ -79,13 +38,13 @@ func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 		connectPack.WillMessage = string(body[plc : willMessageLength+plc])
 		plc += willMessageLength
 	}
-	if connectPack.userNameFlag == 1 {
+	if connectPack.UserNameFlag == 1 {
 		userNameLength := utils.UtfLength(body[plc : plc+2])
 		plc += 2
 		connectPack.UserName = string(body[plc : plc+userNameLength])
 		plc += userNameLength
 	}
-	if connectPack.passwordFlag == 1 {
+	if connectPack.PasswordFlag == 1 {
 		passwordLength := utils.UtfLength(body[plc : plc+2])
 		plc += 2
 		connectPack.Password = string(body[plc : plc+passwordLength])
