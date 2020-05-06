@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net"
 	"sync"
-	"tea/src/mqtt/request"
 	"tea/src/unpack"
 	"time"
 )
@@ -142,20 +141,16 @@ func (c *Client) Write(msg []byte) {
 	c.mutex.RUnlock()
 
 }
-func (c *Client) Pub(pack *request.PublishPack) {
+func (c *Client) GetNewIdentifier() uint16 {
 
 	c.mutex.Lock()
 
-	if c.isStop == false {
-
-		if (c.Identifier | 0x00) == (1<<16 - 1) {
-			c.Identifier = 0
-		}
-		pack.Identifier = c.Identifier + 1
-
+	if (c.Identifier | 0x00) == (1<<16 - 1) {
+		c.Identifier = 0
 	}
-
+	tmp := c.Identifier + 1
 	c.mutex.Unlock()
+	return tmp
 
 }
 

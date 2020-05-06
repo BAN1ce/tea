@@ -53,7 +53,7 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 		clients := clientList.GetNode()
 		for _, clientId := range clients {
 			if c, ok := client.Manage.GetClient(clientId); ok {
-				c.Pub(publishPack)
+				publishPack.Identifier = c.GetNewIdentifier()
 				protocol.Encode(publishPack, c)
 			}
 
@@ -69,7 +69,7 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 		node.Clients.Mu.RLock()
 		for clientId, _ := range node.Clients.M {
 			if c, ok := client.Manage.GetClient(clientId); ok {
-				c.Pub(publishPack)
+				publishPack.Identifier = c.GetNewIdentifier()
 				protocol.Encode(publishPack, c)
 			}
 		}
