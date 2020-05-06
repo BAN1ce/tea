@@ -5,8 +5,10 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"log"
+	"math/rand"
 	"net"
 	"sync"
+	"tea/src/mqtt/request"
 	"tea/src/unpack"
 	"time"
 )
@@ -34,6 +36,7 @@ type Client struct {
 	onConnect  OnConnect
 	onClose    OnClose
 	Topics     map[string]bool
+	Identifier uint16
 }
 
 /**
@@ -56,6 +59,7 @@ func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, proto
 		onConnect:  onConnect,
 		onClose:    onClose,
 		Topics:     make(map[string]bool),
+		Identifier: uint16(rand.Intn(1<<16 - 1)),
 	}
 
 	return client
@@ -136,6 +140,22 @@ func (c *Client) Write(msg []byte) {
 		c.writeChan <- msg
 	}
 	c.mutex.RUnlock()
+
+}
+func (c *Client) Pub(pack *request.PublishPack) {
+
+	c.mutex.Lock()
+
+	if c.isStop == false {
+
+		if (c.Identifier | 0x00) == (1<<16 - 1) {
+			c.Identifier = 0
+		}
+		pack.Identifier = c.Identifier + 1
+
+	}
+
+	c.mutex.Unlock()
 
 }
 
