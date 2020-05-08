@@ -26,17 +26,9 @@ func main() {
 
 	})
 	s2.SetOnMessage(func(msg []byte, client *manage.Client) error {
-
-		//fmt.Println("receiver: ")
-		//for _, v := range msg {
-		//	fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
-		//}
-
 		pack := protocol.Decode(msg)
 
-
 		mqtt.HandleCmd(*pack, client)
-
 
 		return nil
 	})
