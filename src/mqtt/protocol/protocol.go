@@ -116,6 +116,9 @@ func Input() bufio.SplitFunc {
 				} else {
 					break
 				}
+				if i == 4 {
+					break
+				}
 			}
 			sum := headLength + bodyLength
 			return sum, data[0:sum], nil
