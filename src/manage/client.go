@@ -3,14 +3,12 @@ package manage
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"log"
 	"math/rand"
 	"net"
 	"sync"
 	"tea/src/unpack"
-	"tea/src/utils"
 	"time"
 )
 
@@ -132,11 +130,6 @@ func (c *Client) Stop() {
 
 }
 func (c *Client) Write(msg []byte) {
-	for _, v := range msg {
-		fmt.Printf("%08s ", utils.ConvertToBin(int(v)))
-	}
-	fmt.Println()
-
 	c.mutex.RLock()
 	if c.isStop == false {
 		c.writeChan <- msg

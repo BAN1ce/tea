@@ -9,7 +9,7 @@ import (
 
 var (
 	ip          = flag.String("ip", "127.0.0.1", "server IP")
-	connections = flag.Int("conn", 1, "number of tcp connections")
+	connections = flag.Int("conn", 1000, "number of tcp connections")
 )
 
 var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
