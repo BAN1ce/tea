@@ -45,7 +45,8 @@ func main() {
 		}
 
 		// 订阅主题
-		if token := c.Subscribe("product/#", 0, nil); token.Wait() && token.Error() != nil {
+		topic := fmt.Sprintf("product/%d", len(conns)-i-1)
+		if token := c.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
 			fmt.Println(token.Error())
 			i--
 		}
@@ -56,8 +57,8 @@ func main() {
 	for {
 		for i, c := range conns {
 			// 发布消息
-				token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
-				token.Wait()
+			token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
+			token.Wait()
 		}
 		time.Sleep(1 * time.Second)
 	}
