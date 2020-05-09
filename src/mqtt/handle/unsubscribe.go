@@ -29,7 +29,7 @@ func (u *UnSubscribe) Handle(pack protocol.Pack, client *manage.Client) {
 		if utils.HasWildcard(topicSlice) {
 			sub.DeleteTreeSub(topicSlice, client.Uid)
 		} else {
-			sub.UnSub(client.Uid,topic)
+			sub.DeleteHashSub(topic, client.Uid)
 		}
 
 	}
