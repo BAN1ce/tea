@@ -30,7 +30,8 @@ func (s *Subscribe) Handle(pack protocol.Pack, client *manage.Client) {
 		if utils.HasWildcard(topicSlice) {
 			sub.AddTreeSub(topicSlice, client.Uid)
 		} else {
-			sub.AddHashSub(topic, client.Uid)
+			sub.Sub(topic,client.Uid)
+			//sub.AddHashSub(topic, client.Uid)
 		}
 
 	}

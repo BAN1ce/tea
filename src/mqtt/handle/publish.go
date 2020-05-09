@@ -48,18 +48,15 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 
 	// 根据topic 找寻订阅topic的客户端将消息发布给客户端
 
-	clientList, ok := sub.GetTopicSubClients(publishPack.TopicName)
-	if ok {
-		clients := clientList.GetNode()
-		for _, clientId := range clients {
-			if c, ok := client.Manage.GetClient(clientId); ok {
-				if publishPack.Qos != 0 {
-					publishPack.Identifier = c.GetNewIdentifier()
-				}
-				protocol.Encode(publishPack, c)
+	clients := sub.GetSubClientIds(publishPack.TopicName)
+	for _, clientId := range clients {
+		if c, ok := client.Manage.GetClient(clientId); ok {
+			if publishPack.Qos != 0 {
+				publishPack.Identifier = c.GetNewIdentifier()
 			}
-
+			protocol.Encode(publishPack, c)
 		}
+
 	}
 
 	topicSlice := strings.Split(publishPack.TopicName, "/")

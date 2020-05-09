@@ -10,6 +10,47 @@ topic的绝对订阅哈希表
 */
 var subTopicHashTable sync.Map
 
+func Sub(topic string, clientId uuid.UUID) {
+	var subMap sync.Map
+	subMap.Store(clientId, true) //fix 节点IP
+	m, ok := subTopicHashTable.LoadOrStore(topic, subMap)
+	if ok {
+		m, ok := m.(sync.Map)
+		if ok {
+			m.Store(clientId, true)
+		}
+	}
+}
+
+func GetSubClientIds(topic string) []uuid.UUID {
+
+	clients := make([]uuid.UUID, 0)
+	m, ok := subTopicHashTable.Load(topic)
+	if ok {
+		m, ok := m.(sync.Map)
+		if ok {
+			m.Range(func(key, value interface{}) bool {
+				clients = append(clients, key.(uuid.UUID))
+				return true
+			})
+		}
+	}
+
+	return clients
+
+}
+
+func UnSub(clientId uuid.UUID, topic string) {
+
+	m, ok := subTopicHashTable.Load(topic)
+	if ok {
+		m, ok := m.(sync.Map)
+		if ok {
+			m.Delete(clientId)
+		}
+	}
+}
+
 /**
 订阅客户端链表
 */
@@ -50,7 +91,7 @@ func (l *subList) GetNode() []uuid.UUID {
 /**
 新建一个订阅链表
 */
-func newSubLis() *subList {
+func newSubList() *subList {
 
 	l := new(subList)
 
@@ -128,7 +169,7 @@ topic订阅的链表里添加一个新的客户端
 */
 func AddHashSub(topic string, clientId uuid.UUID) {
 
-	l := newSubLis()
+	l := newSubList()
 	n := newSubListNode(clientId)
 	l.first = n
 	l.last = n
