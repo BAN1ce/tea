@@ -23,7 +23,7 @@ func main() {
 
 	flag.Parse()
 
-	mqtt.DEBUG = log.New(os.Stdout, "", 0)
+	//mqtt.DEBUG = log.New(os.Stdout, "", 0)
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
 
 	conns := make([]mqtt.Client, *connections)
@@ -57,7 +57,8 @@ func main() {
 		for i, c := range conns {
 			// 发布消息
 			go func() {
-				 c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
+				token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
+				token.Wait()
 			}()
 		}
 		time.Sleep(1 * time.Second)
