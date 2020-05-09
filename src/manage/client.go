@@ -36,6 +36,7 @@ type Client struct {
 	onClose    OnClose
 	Topics     map[string]bool
 	Identifier uint16
+	UserName   string
 }
 
 /**

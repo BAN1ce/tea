@@ -13,16 +13,17 @@ import (
 )
 
 type Manage struct {
-	clients    sync.Map
-	clientDone chan uuid.UUID
-	OnConnect  OnConnect
-	OnMessage  OnMessage
-	OnClose    OnClose
-	Protocol   unpack.Protocol
-	HbTimer    *time.Timer
-	HbTimeout  time.Duration
-	HbInterval time.Duration
-	HbContent  []byte
+	clients            sync.Map
+	ClientsUsernameUid sync.Map
+	clientDone         chan uuid.UUID
+	OnConnect          OnConnect
+	OnMessage          OnMessage
+	OnClose            OnClose
+	Protocol           unpack.Protocol
+	HbTimer            *time.Timer
+	HbTimeout          time.Duration
+	HbInterval         time.Duration
+	HbContent          []byte
 }
 
 func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protocol unpack.Protocol) *Manage {
@@ -56,6 +57,7 @@ func (m *Manage) Run() {
 							}
 
 						}
+						m.ClientsUsernameUid.Delete(c.UserName)
 					}
 				}
 				m.clients.Delete(clientId)
