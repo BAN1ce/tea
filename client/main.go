@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
+	"log"
+	"os"
 	"time"
 )
 
@@ -21,6 +23,9 @@ func main() {
 
 	flag.Parse()
 
+	mqtt.DEBUG = log.New(os.Stdout, "", 0)
+	mqtt.ERROR = log.New(os.Stdout, "", 0)
+
 	conns := make([]mqtt.Client, *connections)
 
 	addr := fmt.Sprintf("tcp://%s:1883", *ip)
@@ -29,7 +34,7 @@ func main() {
 
 		opts := mqtt.NewClientOptions().AddBroker(addr).SetClientID("emqx_test_client")
 
-		opts.SetKeepAlive(60 * time.Second)
+		opts.SetKeepAlive(30 * time.Second)
 		// 设置消息回调处理函数
 		opts.SetDefaultPublishHandler(f)
 		opts.SetPingTimeout(1 * time.Second)
@@ -52,8 +57,7 @@ func main() {
 		for i, c := range conns {
 			// 发布消息
 			go func() {
-				token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
-				token.Wait()
+				 c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
 			}()
 		}
 		time.Sleep(1 * time.Second)
