@@ -56,8 +56,9 @@ func main() {
 	for {
 		for i, c := range conns {
 			// 发布消息
-			token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
-			token.Wait()
+				token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d", i))
+				token.Wait()
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
