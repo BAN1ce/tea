@@ -7,6 +7,8 @@ import (
 	"log"
 	"net"
 	"sync"
+	"tea/src/api"
+	"tea/src/distributed"
 	"tea/src/manage"
 	"tea/src/unpack"
 	"time"
@@ -141,6 +143,15 @@ func (s *Server) Run(ctx context.Context) {
 	s.Manage.Run()
 
 	s.mutex.RUnlock()
+
+	go func() {
+
+		api.HttpServerBoot()
+	}()
+
+	go func() {
+		distributed.BootCluster()
+	}()
 
 }
 

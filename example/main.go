@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -14,10 +15,19 @@ import (
 	"tea/src/server"
 )
 
+var (
+	mqPort = flag.Int("mq_port", 1883, "mqtt port")
+)
+
 func main() {
 
+	flag.Parse()
+
 	mqtt.Boot()
-	netAddr2, _ := net.ResolveTCPAddr("tcp", "0.0.0.0:1883")
+
+	address := fmt.Sprintf("0.0.0.0:%d", *mqPort)
+
+	netAddr2, _ := net.ResolveTCPAddr("tcp", address)
 	s2 := server.NewServer(netAddr2)
 
 	s2.SetProtocol(func() bufio.SplitFunc {
