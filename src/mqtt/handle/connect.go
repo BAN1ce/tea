@@ -61,7 +61,9 @@ func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 		if ok {
 			existedClient, ok := client.Manage.GetClient(uid)
 			if ok {
+				// 关闭之前连接
 				existedClient.Stop()
+				// 新连接添加
 				client.Manage.ClientsUsernameUid.Store(connectPack.UserName, client.Uid)
 				return
 			}
