@@ -11,7 +11,16 @@ import (
 )
 
 var members = flag.String("members", "", "comma seperated list of members")
+
+var localMemberName string
+
+// 集群
 var Cluster Members
+
+// 客户端与节点的关系
+var ClientUidNode sync.Map
+
+var broadcasts *memberlist.TransmitLimitedQueue
 
 func init() {
 
@@ -21,6 +30,9 @@ func init() {
 	}
 }
 
+/**
+M localMemberName => *Member
+*/
 type Members struct {
 	M     map[string]*Member
 	Mutex sync.RWMutex
@@ -28,7 +40,8 @@ type Members struct {
 
 type Member struct {
 	*memberlist.Node
-	mutex sync.Mutex
+	clientUid sync.Map
+	mutex     sync.Mutex
 }
 
 func NewMember(n *memberlist.Node) *Member {
@@ -60,6 +73,7 @@ func BootCluster() {
 	c.BindPort = 0
 	uid, _ := uuid.NewUUID()
 	c.Name = hostname + "-" + uid.String()
+	localMemberName = c.Name
 	m, err := memberlist.Create(c)
 	if err != nil {
 		panic(err)
@@ -72,7 +86,29 @@ func BootCluster() {
 			return
 		}
 	}
+	broadcasts = &memberlist.TransmitLimitedQueue{
+		NumNodes: func() int {
+			return m.NumMembers()
+		},
+		RetransmitMult: 3,
+	}
 
 	node := m.LocalNode()
 	fmt.Printf("Local member %s:%d\n", node.Addr, node.Port)
+}
+
+func BroadcastSub() {
+
+	fmt.Println("client connect broadcast")
+
+	broadcasts.QueueBroadcast(&broadcast{
+		msg:    append([]byte("sub sub")),
+		notify: nil,
+	})
+
+}
+
+func GetLocalMemberName() string {
+
+	return localMemberName
 }
