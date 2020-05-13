@@ -3,6 +3,7 @@ package handle
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"tea/src/distributed"
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/request"
@@ -76,4 +77,5 @@ func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 	protocol.Encode(connack, client)
 	//todo 用户名密码进行验证，为连接设置clientID，为客户端开辟session
 
+	distributed.UpdateOnline(distributed.GetLocalMemberName(), client.Uid)
 }
