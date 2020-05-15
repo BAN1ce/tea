@@ -37,12 +37,10 @@ func (d delegate) NodeMeta(limit int) []byte {
 }
 
 func (d delegate) NotifyMsg(msg []byte) {
-	fmt.Println("NotifyMsg", msg)
 
 	update := newUpdate()
-	if err := json.Unmarshal(msg, update); err != nil {
+	if err := json.Unmarshal(msg, update); err == nil {
 
-		fmt.Println(update)
 		handle(update)
 	}
 	return
