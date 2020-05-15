@@ -14,6 +14,8 @@ var members = flag.String("members", "", "comma seperated list of members")
 
 var localMemberName string
 
+var localMember *Member
+
 // 集群
 var Cluster Members
 
@@ -94,6 +96,7 @@ func BootCluster() {
 	}
 
 	node := m.LocalNode()
+	localMember = NewMember(node)
 	fmt.Printf("Local member %s:%d\n", node.Addr, node.Port)
 }
 
