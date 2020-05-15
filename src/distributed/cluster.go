@@ -12,12 +12,12 @@ import (
 
 var members = flag.String("members", "", "comma seperated list of members")
 
-var localMemberName string
+var localNodeName string
 
-var localMember *Member
+var localNode *Node
 
 // 集群
-var Cluster Members
+var Cluster Nodes
 
 // 客户端与节点的关系
 var ClientUidNode sync.Map
@@ -26,41 +26,41 @@ var broadcasts *memberlist.TransmitLimitedQueue
 
 func init() {
 
-	Cluster = Members{
-		M:     make(map[string]*Member),
+	Cluster = Nodes{
+		M:     make(map[string]*Node),
 		Mutex: sync.RWMutex{},
 	}
 }
 
 /**
-M localMemberName => *Member
+M localNodeName => *Node
 */
-type Members struct {
-	M     map[string]*Member
+type Nodes struct {
+	M     map[string]*Node
 	Mutex sync.RWMutex
 }
 
-type Member struct {
+type Node struct {
 	*memberlist.Node
 	clientUid sync.Map
 	mutex     sync.Mutex
 }
 
-func NewMember(n *memberlist.Node) *Member {
-	m := new(Member)
+func NewNode(n *memberlist.Node) *Node {
+	m := new(Node)
 	m.Node = n
 	return m
 }
 
 func MemberJoin(n *memberlist.Node) {
 	Cluster.Mutex.Lock()
-	member := NewMember(n)
-	Cluster.M[n.Name] = member
+	node := NewNode(n)
+	Cluster.M[n.Name] = node
 	Cluster.Mutex.Unlock()
 
 }
 
-func MemberLeave(n *memberlist.Node) {
+func nodeLeave(n *memberlist.Node) {
 	Cluster.Mutex.Lock()
 	delete(Cluster.M, n.Name)
 	Cluster.Mutex.Unlock()
@@ -75,7 +75,7 @@ func BootCluster() {
 	c.BindPort = 0
 	uid, _ := uuid.NewUUID()
 	c.Name = hostname + "-" + uid.String()
-	localMemberName = c.Name
+	localNodeName = c.Name
 	m, err := memberlist.Create(c)
 	if err != nil {
 		panic(err)
@@ -96,7 +96,7 @@ func BootCluster() {
 	}
 
 	node := m.LocalNode()
-	localMember = NewMember(node)
+	localNode = NewNode(node)
 	fmt.Printf("Local member %s:%d\n", node.Addr, node.Port)
 }
 
@@ -111,7 +111,7 @@ func BroadcastSub() {
 
 }
 
-func GetLocalMemberName() string {
+func GetLocalNodeName() string {
 
-	return localMemberName
+	return localNodeName
 }

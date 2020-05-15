@@ -69,7 +69,7 @@ func (e eventDelegate) NotifyJoin(n *memberlist.Node) {
 }
 
 func (e eventDelegate) NotifyLeave(n *memberlist.Node) {
-	MemberLeave(n)
+	nodeLeave(n)
 }
 
 func (e eventDelegate) NotifyUpdate(*memberlist.Node) {

@@ -46,7 +46,7 @@ func handle(update *update) {
 /**
 客户端上线，记录客户端的id和对应的节点关系
 */
-func clientOnline(clientId uuid.UUID, member *Member) {
+func clientOnline(clientId uuid.UUID, member *Node) {
 
 	ClientUidNode.Store(clientId, member.Node)
 	member.clientUid.Store(clientId, true)
@@ -55,7 +55,7 @@ func clientOnline(clientId uuid.UUID, member *Member) {
 /**
 客户端下线,删除客户端id和对应的节点关系
 */
-func clientOffline(clientId uuid.UUID, member *Member) {
+func clientOffline(clientId uuid.UUID, member *Node) {
 	ClientUidNode.Delete(clientId)
 	member.clientUid.Delete(clientId)
 }
@@ -68,19 +68,38 @@ func clientUnsub() {
 
 }
 
-func UpdateOnline(memberName string, clientId uuid.UUID) {
+func UpdateOnline(nodeName string, clientId uuid.UUID) {
 
-	fmt.Println("memberName", memberName)
-	clientOnline(clientId, localMember)
+	clientOnline(clientId, localNode)
 	u := update{
-		SourceMemberName: memberName,
+		SourceMemberName: nodeName,
 		Action:           "online",
 		Data:             make(map[string]string),
 	}
 
 	u.Data["uid"] = clientId.String()
 	if b, err := json.Marshal(u); err == nil {
-		fmt.Println("send connect")
+		broadcasts.QueueBroadcast(&broadcast{
+			msg:    b,
+			notify: nil,
+		})
+	} else {
+		fmt.Println("json error", err)
+	}
+
+}
+
+func UpdateOffline(nodeName string,clientId uuid.UUID)  {
+	clientOffline(clientId, localNode)
+
+	u := update{
+		SourceMemberName: nodeName,
+		Action:           "offline",
+		Data:             make(map[string]string),
+	}
+
+	u.Data["uid"] = clientId.String()
+	if b, err := json.Marshal(u); err == nil {
 		broadcasts.QueueBroadcast(&broadcast{
 			msg:    b,
 			notify: nil,
