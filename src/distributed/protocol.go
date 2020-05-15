@@ -7,7 +7,7 @@ import (
 )
 
 type update struct {
-	sourceMemberName string
+	SourceMemberName string
 	Action           string // add, del
 	Data             map[string]string
 }
@@ -22,13 +22,17 @@ func newUpdate() *update {
 func handle(update *update) {
 
 	Cluster.Mutex.RLock()
-	member := Cluster.M[update.sourceMemberName]
+	member := Cluster.M[update.SourceMemberName]
 	Cluster.Mutex.RUnlock()
 
 	switch update.Action {
 	case "online":
-		if uid, err := uuid.FromBytes([]byte(update.Data["uid"])); err == nil {
+		fmt.Println(update.Data["uid"])
+		fmt.Println("member", member, update.SourceMemberName)
+		if uid, err := uuid.Parse(update.Data["uid"]); err == nil {
 			clientOnline(uid, member)
+		} else {
+			fmt.Println(err)
 		}
 	case "offline":
 		if uid, err := uuid.FromBytes([]byte(update.Data["uid"])); err == nil {
@@ -66,11 +70,14 @@ func clientUnsub() {
 
 func UpdateOnline(memberName string, clientId uuid.UUID) {
 
+	fmt.Println("memberName", memberName)
+	clientOnline(clientId, localMember)
 	u := update{
-		sourceMemberName: memberName,
+		SourceMemberName: memberName,
 		Action:           "online",
 		Data:             make(map[string]string),
 	}
+
 	u.Data["uid"] = clientId.String()
 	if b, err := json.Marshal(u); err == nil {
 		fmt.Println("send connect")
