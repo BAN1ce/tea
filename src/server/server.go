@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"github.com/google/uuid"
@@ -10,6 +11,9 @@ import (
 	"tea/src/api"
 	"tea/src/distributed"
 	"tea/src/manage"
+	"tea/src/mqtt"
+	"tea/src/mqtt/protocol"
+	"tea/src/mqtt/qos"
 	"tea/src/unpack"
 	"time"
 )
@@ -57,6 +61,24 @@ func NewServer(addr net.Addr) *Server {
 	`)
 
 	fmt.Println("Server Listen on " + addr.String() + " SUCCESS")
+
+	mqtt.Boot()
+
+	server.SetProtocol(func() bufio.SplitFunc {
+
+		return protocol.Input()
+
+	})
+	server.SetOnMessage(func(msg []byte, client *manage.Client) error {
+		pack := protocol.Decode(msg)
+
+		mqtt.HandleCmd(*pack, client)
+
+		return nil
+	})
+
+	server.Run(context.Background())
+
 	return server
 }
 func (s *Server) GetHbInterval() time.Duration {
@@ -141,6 +163,8 @@ func (s *Server) Run(ctx context.Context) {
 
 	}
 	s.Manage.Run()
+
+	qos.LocalManage = s.Manage
 
 	s.mutex.RUnlock()
 

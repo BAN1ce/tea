@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/memberlist"
+	"tea/src/mqtt/qos"
+	"tea/src/utils"
 )
 
 type delegate struct {
@@ -38,10 +40,20 @@ func (d delegate) NodeMeta(limit int) []byte {
 
 func (d delegate) NotifyMsg(msg []byte) {
 
-	update := newUpdate()
-	if err := json.Unmarshal(msg, update); err == nil {
+	//todo 收到其他节点pub消息，去重处理且发布到订阅的客户端
 
-		handle(update)
+	fmt.Println("notify msg",string(msg))
+
+	cmd := utils.BytesToUint16(msg[0:2])
+
+	switch cmd {
+
+	case 0x01:
+		pub := &BroadcastPubMessage{}
+		json.Unmarshal(msg[2:], pub)
+		qos.HandleQosZero(pub.TopicName,pub.Payload)
+		fmt.Println(pub)
+
 	}
 	return
 }
@@ -57,19 +69,15 @@ func (d delegate) LocalState(join bool) []byte {
 
 func (d delegate) MergeRemoteState(buf []byte, join bool) {
 
-	fmt.Println("MergeRemoteState", buf)
+	fmt.Println("MergeRemoteState", string(buf))
 	return
 }
 
 func (e eventDelegate) NotifyJoin(n *memberlist.Node) {
-	//fixme
 
-	fmt.Println("somebody join", n.Name)
-	MemberJoin(n)
 }
 
 func (e eventDelegate) NotifyLeave(n *memberlist.Node) {
-	nodeLeave(n)
 }
 
 func (e eventDelegate) NotifyUpdate(*memberlist.Node) {

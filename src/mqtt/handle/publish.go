@@ -1,7 +1,9 @@
 package handle
 
 import (
+	"fmt"
 	"strings"
+	"tea/src/distributed"
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/request"
@@ -69,6 +71,7 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 		for clientId, _ := range node.Clients.M {
 			if c, ok := client.Manage.GetClient(clientId); ok {
 				if publishPack.Qos != 0 {
+					//fixme 当消息不是第一次发送时应使用之前的idf
 					publishPack.Identifier = c.GetNewIdentifier()
 				}
 				protocol.Encode(publishPack, c)
@@ -76,5 +79,16 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 		}
 		node.Clients.Mu.RUnlock()
 	}
+
+	broadPub, _ := distributed.NewBroadcastPubMessage()
+
+	broadPub.TopicName = publishPack.TopicName
+	broadPub.Qos = publishPack.Qos
+	broadPub.Dup = publishPack.Dup
+	broadPub.Retain = publishPack.Retain
+	broadPub.Payload = publishPack.Payload
+
+	fmt.Println("get pub message", string(publishPack.Payload))
+	distributed.BroadcastPub(broadPub)
 
 }
