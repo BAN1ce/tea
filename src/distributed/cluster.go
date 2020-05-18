@@ -15,6 +15,8 @@ var localNodeName string
 
 var localNode *memberlist.Node
 
+var cluster *memberlist.Memberlist
+
 // 集群
 
 // 客户端与节点的关系
@@ -60,4 +62,9 @@ func BootCluster() {
 */
 func GetLocalNodeName() string {
 	return localNodeName
+}
+
+func GetCluster() *memberlist.Memberlist {
+
+	return cluster
 }
