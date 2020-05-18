@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/memberlist"
+	"sync"
 	"tea/src/mqtt/qos"
 	"tea/src/utils"
 )
+
+var keyMap sync.Map
 
 type delegate struct {
 }
@@ -42,7 +45,7 @@ func (d delegate) NotifyMsg(msg []byte) {
 
 	//todo 收到其他节点pub消息，去重处理且发布到订阅的客户端
 
-	fmt.Println("notify msg",string(msg))
+	fmt.Println("notify msg", string(msg))
 
 	cmd := utils.BytesToUint16(msg[0:2])
 
@@ -51,7 +54,11 @@ func (d delegate) NotifyMsg(msg []byte) {
 	case 0x01:
 		pub := &BroadcastPubMessage{}
 		json.Unmarshal(msg[2:], pub)
-		qos.HandleQosZero(pub.TopicName,pub.Payload)
+		if _, ok := keyMap.LoadOrStore(pub.Uid.String(), true); ok {
+			fmt.Println("exists message receiver from other node")
+		} else {
+			qos.HandleQosZero(pub.TopicName, pub.Payload)
+		}
 
 	}
 	return
