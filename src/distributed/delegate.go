@@ -57,7 +57,7 @@ func (d delegate) NotifyMsg(msg []byte) {
 		if _, ok := keyMap.LoadOrStore(pub.Uid.String(), true); ok {
 			fmt.Println("exists message receiver from other node")
 		} else {
-			qos.HandleQosZero(pub.TopicName, pub.Payload)
+			go qos.HandleQosZero(pub.TopicName, pub.Payload)
 		}
 
 	}
