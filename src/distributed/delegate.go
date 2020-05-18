@@ -52,7 +52,6 @@ func (d delegate) NotifyMsg(msg []byte) {
 		pub := &BroadcastPubMessage{}
 		json.Unmarshal(msg[2:], pub)
 		qos.HandleQosZero(pub.TopicName,pub.Payload)
-		fmt.Println(pub)
 
 	}
 	return

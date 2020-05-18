@@ -13,7 +13,7 @@ var LocalManage *manage.Manage
 
 func HandleQosZero(topicName string, payload []byte) {
 
-	fmt.Println("handle other node pub message")
+	fmt.Println("handle other node pub message",string(payload))
 
 	clients := sub.GetSubClientIds(topicName)
 
