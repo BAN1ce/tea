@@ -12,6 +12,7 @@ import (
 var (
 	ip          = flag.String("ip", "127.0.0.1:1883", "server IP")
 	connections = flag.Int("conn", 1000, "number of tcp connections")
+	per         = flag.Int("per", 1000, "number of messages count per connection")
 )
 
 var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
@@ -71,7 +72,7 @@ func main() {
 		time.Sleep(1 * time.Second)
 		j++
 
-		if j == 10000 {
+		if j == *per {
 			break
 		}
 	}
@@ -80,7 +81,7 @@ func main() {
 
 	time.Sleep(5 * time.Second)
 	for k, v := range satistic {
-		if v != 10000 {
+		if v != *per {
 			fmt.Println(k, v)
 		}
 	}
