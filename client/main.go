@@ -4,15 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
-	"github.com/google/uuid"
 	"log"
 	"os"
 	"time"
 )
 
 var (
-	ip          = flag.String("ip", "127.0.0.1:1883", "server IP")
-	connections = flag.Int("conn", 1000, "number of tcp connections")
+	ip          = flag.String("ip", "127.0.0.1", "server IP")
+	connections = flag.Int("conn", 10, "number of tcp connections")
 )
 
 var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
@@ -29,42 +28,32 @@ func main() {
 
 	conns := make([]mqtt.Client, *connections)
 
-	satistic := make(map[string]int)
-
-	addr := fmt.Sprintf("tcp://%s", *ip)
+	addr := fmt.Sprintf("tcp://%s:1883", *ip)
 
 	for i := 0; i < len(conns); i++ {
 
-		if uid, err := uuid.NewUUID(); err != nil {
-			i--
-			continue
-		} else {
+		opts := mqtt.NewClientOptions().AddBroker(addr).SetUsername(fmt.Sprintf("%d", i))
 
-			opts := mqtt.NewClientOptions().AddBroker(addr).SetClientID(uid.String())
+		opts.SetKeepAlive(30 * time.Second)
+		// 设置消息回调处理函数
+		opts.SetDefaultPublishHandler(f)
+		opts.SetPingTimeout(1 * time.Second)
 
-			opts.SetKeepAlive(30 * time.Second)
-			// 设置消息回调处理函数
-			opts.SetDefaultPublishHandler(f)
-
-			c := mqtt.NewClient(opts)
-			if token := c.Connect(); token.Wait() && token.Error() != nil {
-				panic(token.Error())
-			}
-
-			// 订阅主题
-			topic := fmt.Sprintf("product/%d", len(conns)-i-1)
-			if token := c.Subscribe(topic, 0, func(client mqtt.Client, message mqtt.Message) {
-				satistic[message.Topic()] += 1
-			}); token.Wait() && token.Error() != nil {
-				fmt.Println(token.Error())
-				i--
-			}
-			conns[i] = c
+		c := mqtt.NewClient(opts)
+		if token := c.Connect(); token.Wait() && token.Error() != nil {
+			panic(token.Error())
 		}
+
+		// 订阅主题
+		topic := fmt.Sprintf("product/%d", len(conns)-i-1)
+		if token := c.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
+			fmt.Println(token.Error())
+			i--
+		}
+		conns[i] = c
 	}
 	fmt.Println(fmt.Sprintf("create %d clients success", *connections))
 
-	j := 0
 	for {
 		for i, c := range conns {
 			// 发布消息
@@ -72,21 +61,5 @@ func main() {
 			token.Wait()
 		}
 		time.Sleep(1 * time.Second)
-		j++
-
-		if j == 10000 {
-			break
-		}
 	}
-
-	fmt.Println("All message published")
-
-	time.Sleep(5 * time.Second)
-	for k, v := range satistic {
-		if v != 10000 {
-			fmt.Println(k, v)
-		}
-	}
-	select {}
-
 }
