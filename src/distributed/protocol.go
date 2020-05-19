@@ -3,8 +3,11 @@ package distributed
 import (
 	"encoding/json"
 	"github.com/google/uuid"
+	"sync/atomic"
 	"tea/src/utils"
 )
+
+var BroadcastedCount uint32
 
 type BroadcastPubMessage struct {
 	TopicName string
@@ -32,6 +35,7 @@ func BroadcastPub(p *BroadcastPubMessage) {
 
 	b = append(utils.Uint16ToBytes(0x01), b...)
 
+	atomic.AddUint32(&BroadcastedCount, 1)
 	broadcasts.QueueBroadcast(&broadcast{msg: b, notify: nil})
 
 }

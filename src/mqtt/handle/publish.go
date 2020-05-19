@@ -1,7 +1,6 @@
 package handle
 
 import (
-	"fmt"
 	"strings"
 	"tea/src/distributed"
 	"tea/src/manage"
@@ -88,7 +87,7 @@ func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
 	broadPub.Retain = publishPack.Retain
 	broadPub.Payload = publishPack.Payload
 
-	fmt.Println("get pub message", string(publishPack.Payload))
+	//fmt.Println("get pub message", string(publishPack.Payload))
 	distributed.BroadcastPub(broadPub)
 
 }

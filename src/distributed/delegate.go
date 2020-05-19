@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"github.com/hashicorp/memberlist"
 	"sync"
+	"sync/atomic"
 	"tea/src/mqtt/qos"
 	"tea/src/utils"
 )
+
+var BroadcastHandleTotalCount uint32
+
+var BroadcastTotalCount uint32
 
 var keyMap sync.Map
 
@@ -54,9 +59,12 @@ func (d delegate) NotifyMsg(msg []byte) {
 	case 0x01:
 		pub := &BroadcastPubMessage{}
 		json.Unmarshal(msg[2:], pub)
+		atomic.AddUint32(&BroadcastTotalCount, 1)
 		if _, ok := keyMap.LoadOrStore(pub.Uid.String(), true); ok {
 			fmt.Println("exists message receiver from other node")
 		} else {
+
+			atomic.AddUint32(&BroadcastHandleTotalCount, 1)
 			go qos.HandleQosZero(pub.TopicName, pub.Payload)
 		}
 
