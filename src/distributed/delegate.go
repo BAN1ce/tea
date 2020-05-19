@@ -57,16 +57,18 @@ func (d delegate) NotifyMsg(msg []byte) {
 	switch cmd {
 
 	case 0x01:
-		pub := &BroadcastPubMessage{}
-		json.Unmarshal(msg[2:], pub)
-		atomic.AddUint32(&BroadcastTotalCount, 1)
-		if _, ok := keyMap.LoadOrStore(pub.Uid.String(), true); ok {
-			fmt.Println("exists message receiver from other node")
-		} else {
+		go func() {
+			pub := &BroadcastPubMessage{}
+			json.Unmarshal(msg[2:], pub)
+			atomic.AddUint32(&BroadcastTotalCount, 1)
+			if _, ok := keyMap.LoadOrStore(pub.Uid.String(), true); ok {
+				fmt.Println("exists message receiver from other node")
+			} else {
 
-			atomic.AddUint32(&BroadcastHandleTotalCount, 1)
-			go qos.HandleQosZero(pub.TopicName, pub.Payload)
-		}
+				atomic.AddUint32(&BroadcastHandleTotalCount, 1)
+				qos.HandleQosZero(pub.TopicName, pub.Payload)
+			}
+		}()
 
 	}
 	return
