@@ -85,7 +85,7 @@ func main() {
 
 	fmt.Println("All message published")
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(60 * time.Second)
 
 	t := time.NewTicker(5 * time.Second)
 
