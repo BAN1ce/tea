@@ -12,8 +12,8 @@ var (
 
 func HttpServerBoot() {
 
-
 	http.HandleFunc("/members", GetHandle)
+	http.HandleFunc("/broadcast/total", GetBroadcastTotalCount)
 	fmt.Printf("Listening on :%d\n", *port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil); err != nil {
 		fmt.Println(err)
