@@ -6,6 +6,7 @@ import (
 	"github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -29,7 +30,9 @@ func main() {
 
 	conns := make([]mqtt.Client, *connections)
 
-	satistic := make(map[string]int)
+	var mu sync.RWMutex
+
+	statistic := make(map[string]int)
 
 	fmt.Println(*ip)
 
@@ -52,7 +55,9 @@ func main() {
 		// 订阅主题
 		topic := fmt.Sprintf("product/%d", len(conns)-i-1)
 		if token := c.Subscribe(topic, 0, func(client mqtt.Client, message mqtt.Message) {
-			satistic[message.Topic()] += 1
+			mu.Lock()
+			statistic[message.Topic()] += 1
+			mu.Unlock()
 		}); token.Wait() && token.Error() != nil {
 			fmt.Println(token.Error())
 			i--
@@ -81,11 +86,24 @@ func main() {
 	fmt.Println("All message published")
 
 	time.Sleep(5 * time.Second)
-	for k, v := range satistic {
-		if v != *per {
-			fmt.Println(k, v)
+
+	t := time.NewTicker(5 * time.Second)
+
+	for {
+		select {
+
+		case <-t.C:
+			mu.RLock()
+			for k, v := range statistic {
+				if v != *per {
+					fmt.Println(k, v, "miss receiver")
+				}
+			}
+			mu.Unlock()
+
+			fmt.Println("all scan")
+
 		}
 	}
-	select {}
 
 }
