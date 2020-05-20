@@ -42,7 +42,7 @@ func main() {
 
 		opts := mqtt.NewClientOptions().AddBroker(addr).SetUsername("hello" + string(i))
 
-		opts.SetKeepAlive(3000 * time.Second)
+		opts.SetKeepAlive(20 * time.Second)
 		// 设置消息回调处理函数
 		opts.SetDefaultPublishHandler(f)
 
