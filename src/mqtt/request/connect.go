@@ -32,7 +32,7 @@ func NewConnectPack(pack protocol.Pack) *ConnectPack {
 	c.Pack = pack
 	plc := utils.UtfLength(pack.Data[pack.FixHeaderLength:pack.FixHeaderLength+2]) + 2
 	c.ProtocolName = string(pack.Data[pack.FixHeaderLength+2 : pack.FixHeaderLength+plc])
-	c.ProtocolLevel = int(pack.Data[pack.FixHeaderLength+plc+1])
+	c.ProtocolLevel = int(pack.Data[pack.FixHeaderLength+plc])
 	c.ConnectFlags = pack.Data[pack.FixHeaderLength+plc+1]
 	c.Reserved = int(c.ConnectFlags & 1)
 	c.CleanSession = int((c.ConnectFlags & 2) >> 1)
