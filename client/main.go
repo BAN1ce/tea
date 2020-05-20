@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
+	_ "github.com/rakyll/gom/http"
 	"log"
 	"os"
 	"sync"

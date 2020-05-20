@@ -14,6 +14,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/memberlist v0.2.2
 	github.com/miekg/dns v1.1.29 // indirect
+	github.com/rakyll/gom v0.0.0-20161122080731-183a9e70f477 // indirect
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 // indirect
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f // indirect
