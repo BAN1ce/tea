@@ -108,7 +108,7 @@ func Input() bufio.SplitFunc {
 			headLength := 1
 			multiplier := 1
 			bodyLength := 0
-			for i := 1; i < len(data) && i<=4; i++ {
+			for i := 1; i < len(data) && i <= 4; i++ {
 				bodyLength += int(data[i]&127) * multiplier
 				headLength++
 				if data[i]&128 == 1 {
@@ -136,10 +136,10 @@ func Decode(data []byte) *Pack {
 	fixHeadLength := 1
 	multiplier := 1
 	bodyLength := 0
-	for i := 1; i < len(data) && i <= 4; i++ {
+	for i := 1; i < len(data) && i<= 4; i++ {
 		bodyLength += int(data[i]&127) * multiplier
 		fixHeadLength++
-		if data[i]&128 == 1 {
+		if data[i]&128 == 128 {
 			multiplier *= 128
 		} else {
 			break
