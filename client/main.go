@@ -4,9 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
-	_ "github.com/rakyll/gom/http"
 	"log"
-	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -24,8 +22,6 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 }
 
 func main() {
-
-	log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
 
 	flag.Parse()
 
@@ -97,13 +93,11 @@ func main() {
 		select {
 
 		case <-t.C:
-			mu.RLock()
 			for k, v := range statistic {
 				if v != *per {
 					fmt.Println(k, v, "miss receiver")
 				}
 			}
-			mu.Unlock()
 
 			fmt.Println("all scan")
 
