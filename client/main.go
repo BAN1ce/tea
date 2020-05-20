@@ -6,6 +6,7 @@ import (
 	"github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/rakyll/gom/http"
 	"log"
+	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -23,6 +24,8 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 }
 
 func main() {
+
+	log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
 
 	flag.Parse()
 
