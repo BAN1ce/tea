@@ -3,10 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	_ "github.com/rakyll/gom/http"
-	"log"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,8 +16,7 @@ var (
 
 func main() {
 
-	log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
-	
+
 	flag.Parse()
 
 	address := fmt.Sprintf("0.0.0.0:%d", *mqPort)
