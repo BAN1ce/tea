@@ -111,7 +111,7 @@ func Input() bufio.SplitFunc {
 			for i := 1; i < len(data) && i <= 4; i++ {
 				bodyLength += int(data[i]&127) * multiplier
 				headLength++
-				if data[i]&128 == 1 {
+				if data[i]&128 == 128 {
 					multiplier *= 128
 				} else {
 					break
