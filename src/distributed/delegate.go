@@ -14,6 +14,8 @@ var BroadcastHandleTotalCount uint32
 
 var BroadcastTotalCount uint32
 
+var HBTotalCount uint32
+
 var keyMap sync.Map
 
 type delegate struct {

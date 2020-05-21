@@ -17,6 +17,7 @@ func GetBroadcastTotalCount(w http.ResponseWriter, r *http.Request) {
 	response["total_count"] = distributed.BroadcastTotalCount
 	response["total_handle_count"] = distributed.BroadcastHandleTotalCount
 	response["total_broadcasted"] = distributed.BroadcastedCount
+	response["total_hb_count"] = distributed.HBTotalCount
 
 	b, _ := json.Marshal(response)
 
