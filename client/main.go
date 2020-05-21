@@ -77,7 +77,8 @@ func main() {
 			token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d - %s", i, timeStr))
 			token.Wait()
 		}
-		time.Sleep(1 * time.Second)
+		fmt.Println(j, "times send success")
+		time.Sleep(10 * time.Second)
 		j++
 
 		if j == *per {
