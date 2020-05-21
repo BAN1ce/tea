@@ -101,6 +101,7 @@ func Input() bufio.SplitFunc {
 	return func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 
 		if atEOF {
+			return
 			return len(data), data[:len(data)], errors.New("EOF")
 		}
 
@@ -124,7 +125,7 @@ func Input() bufio.SplitFunc {
 			return sum, data[0:sum], nil
 		}
 
-		return 0, nil, nil
+		return
 	}
 }
 
@@ -136,7 +137,7 @@ func Decode(data []byte) *Pack {
 	fixHeadLength := 1
 	multiplier := 1
 	bodyLength := 0
-	for i := 1; i < len(data) && i<= 4; i++ {
+	for i := 1; i < len(data) && i <= 4; i++ {
 		bodyLength += int(data[i]&127) * multiplier
 		fixHeadLength++
 		if data[i]&128 == 128 {
