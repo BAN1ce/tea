@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 	"tea/src/server"
-	_ "net/http/pprof"
+	_ "github.com/rakyll/gom/http"
 )
 
 var (
