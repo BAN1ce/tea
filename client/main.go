@@ -79,7 +79,7 @@ func main() {
 			token.Wait()
 		}
 		fmt.Println(j, "times send success")
-		//time.Sleep(10 * time.Second)
+		time.Sleep(20 * time.Second)
 		j++
 
 		if j == *per {
