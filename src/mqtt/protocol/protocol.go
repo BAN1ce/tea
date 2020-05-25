@@ -121,7 +121,9 @@ func Input() bufio.SplitFunc {
 				return 0, nil, nil
 			}
 			token = make([]byte, sum)
-			copy(token, data)
+			for i := 0; i < len(token); i++ {
+				token[i] = data[i]
+			}
 			return sum, token, nil
 		}
 
