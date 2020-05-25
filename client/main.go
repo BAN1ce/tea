@@ -56,7 +56,7 @@ func main() {
 		}
 
 		// 订阅主题
-		topic := fmt.Sprintf("product/%d", len(conns)-i-1)
+		topic := fmt.Sprintf(*name+"product/%d", len(conns)-i-1)
 		if token := c.Subscribe(topic, 0, func(client mqtt.Client, message mqtt.Message) {
 			mu.Lock()
 			statistic[message.Topic()] += 1
@@ -75,7 +75,7 @@ func main() {
 		for i, c := range conns {
 			// 发布消息
 			timeStr := time.Now().Format("2006-01-02 15:04:05")
-			token := c.Publish(fmt.Sprintf("product/%d", i), 0, false, fmt.Sprintf("Hello World %d - %s", i, timeStr))
+			token := c.Publish(fmt.Sprintf(*name+"product/%d", i), 0, false, fmt.Sprintf("Hello World %d - %s", i, timeStr))
 			token.Wait()
 		}
 		fmt.Println(j, "times send success")
