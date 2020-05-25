@@ -14,6 +14,7 @@ var (
 	ip          = flag.String("ip", "127.0.0.1:1883", "server IP")
 	connections = flag.Int("conn", 1000, "number of tcp connections")
 	per         = flag.Int("per", 1000, "number of messages count per connection")
+	name        = flag.String("name", "local", "localName")
 )
 
 var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
@@ -40,7 +41,7 @@ func main() {
 
 	for i := 0; i < len(conns); i++ {
 
-		opts := mqtt.NewClientOptions().AddBroker(addr).SetUsername("hello" + string(i))
+		opts := mqtt.NewClientOptions().AddBroker(addr).SetUsername(fmt.Sprintf("%s_hello", *name) + string(i))
 
 		opts.SetKeepAlive(30 * time.Second)
 		opts.SetPingTimeout(120 * time.Second)
@@ -78,7 +79,7 @@ func main() {
 			token.Wait()
 		}
 		fmt.Println(j, "times send success")
-		time.Sleep(10 * time.Second)
+		//time.Sleep(10 * time.Second)
 		j++
 
 		if j == *per {
