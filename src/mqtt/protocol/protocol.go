@@ -2,7 +2,6 @@ package protocol
 
 import (
 	"bufio"
-	"errors"
 	"tea/src/manage"
 	"tea/src/mqtt/response"
 )
@@ -102,7 +101,6 @@ func Input() bufio.SplitFunc {
 
 		if atEOF {
 			return
-			return len(data), data[:len(data)], errors.New("EOF")
 		}
 
 		if len(data) >= 2 {
@@ -122,7 +120,9 @@ func Input() bufio.SplitFunc {
 			if sum > len(data) {
 				return 0, nil, nil
 			}
-			return sum, data[0:sum], nil
+			token = make([]byte, sum)
+			copy(token, data)
+			return sum, token, nil
 		}
 
 		return
@@ -131,7 +131,7 @@ func Input() bufio.SplitFunc {
 
 func Decode(data []byte) *Pack {
 	pack := NewPack()
-
+	pack.Data = data
 	pack.Cmd = int(data[0] >> 4)
 
 	fixHeadLength := 1
@@ -150,7 +150,7 @@ func Decode(data []byte) *Pack {
 	pack.BodyLength = bodyLength
 	pack.FixedHeader = data[0:fixHeadLength]
 	pack.FixHeaderLength = fixHeadLength
-	pack.Data = data
+
 	pack.PackLength = len(data)
 
 	return pack
