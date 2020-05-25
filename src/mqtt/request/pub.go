@@ -7,7 +7,7 @@ import (
 )
 
 type PublishPack struct {
-	protocol.Pack
+	*protocol.Pack
 	Dup        int
 	Qos        int
 	Retain     int

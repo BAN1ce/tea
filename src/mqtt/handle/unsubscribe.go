@@ -18,7 +18,7 @@ func NewUnSubscribe() *UnSubscribe {
 	return new(UnSubscribe)
 }
 
-func (u *UnSubscribe) Handle(pack protocol.Pack, client *manage.Client) {
+func (u *UnSubscribe) Handle(pack *protocol.Pack, client *manage.Client) {
 
 	p := request.NewUnSubscribePack(pack)
 

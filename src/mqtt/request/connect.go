@@ -6,27 +6,27 @@ import (
 )
 
 type ConnectPack struct {
-	protocol.Pack
+	*protocol.Pack
 	BodyStart     int
 	ProtocolName  string
 	ProtocolLevel int
 	ConnectFlags  byte
 	Reserved      int
 	CleanSession  int
-	WillFlag     int
-	WillQos      int
-	WillRetain   int
-	PasswordFlag int
-	UserNameFlag int
-	ClientId     string
-	WillTopic    string
-	WillMessage  string
-	UserName     string
-	Password     string
-	KeepAlive    int
+	WillFlag      int
+	WillQos       int
+	WillRetain    int
+	PasswordFlag  int
+	UserNameFlag  int
+	ClientId      string
+	WillTopic     string
+	WillMessage   string
+	UserName      string
+	Password      string
+	KeepAlive     int
 }
 
-func NewConnectPack(pack protocol.Pack) *ConnectPack {
+func NewConnectPack(pack *protocol.Pack) *ConnectPack {
 
 	c := new(ConnectPack)
 	c.Pack = pack
@@ -46,4 +46,3 @@ func NewConnectPack(pack protocol.Pack) *ConnectPack {
 
 	return c
 }
-

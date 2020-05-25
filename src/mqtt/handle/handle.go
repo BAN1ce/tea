@@ -6,5 +6,5 @@ import (
 )
 
 type Handle interface {
-	Handle(pack protocol.Pack, client *manage.Client)
+	Handle(pack *protocol.Pack, client *manage.Client)
 }

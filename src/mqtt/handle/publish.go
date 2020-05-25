@@ -13,7 +13,7 @@ import (
 type Publish struct {
 }
 
-func newPublishPack(pack protocol.Pack) *request.PublishPack {
+func newPublishPack(pack *protocol.Pack) *request.PublishPack {
 
 	p := new(request.PublishPack)
 	p.Pack = pack
@@ -43,7 +43,7 @@ func NewPublish() *Publish {
 
 	return new(Publish)
 }
-func (p *Publish) Handle(pack protocol.Pack, client *manage.Client) {
+func (p *Publish) Handle(pack *protocol.Pack, client *manage.Client) {
 
 	publishPack := newPublishPack(pack)
 

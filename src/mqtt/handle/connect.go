@@ -17,7 +17,7 @@ func NewConnect() *Connect {
 	return new(Connect)
 }
 
-func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
+func (c *Connect) Handle(pack *protocol.Pack, client *manage.Client) {
 
 	connectPack := request.NewConnectPack(pack)
 	body := connectPack.Data[connectPack.BodyStart:]
@@ -52,8 +52,7 @@ func (c *Connect) Handle(pack protocol.Pack, client *manage.Client) {
 		connectPack.Password = string(body[plc : plc+passwordLength])
 		plc += passwordLength
 	}
-
-	fmt.Println(connectPack.UserName)
+	
 	// 同名客户端连接则关闭上一个连接
 	if existedClient, ok := client.Manage.ClientsUsernameUid.LoadOrStore(connectPack.UserName, client.Uid); ok {
 		uid, ok := existedClient.(uuid.UUID)

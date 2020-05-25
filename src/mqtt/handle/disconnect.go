@@ -13,7 +13,7 @@ func NewDisconnect() *Disconnect {
 	return new(Disconnect)
 }
 
-func (c *Disconnect) Handle(pack protocol.Pack, client *manage.Client) {
+func (c *Disconnect) Handle(pack *protocol.Pack, client *manage.Client) {
 
 	client.Stop()
 

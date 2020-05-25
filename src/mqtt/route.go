@@ -15,9 +15,10 @@ func Boot() {
 
 }
 
-func HandleCmd(pack protocol.Pack, client *manage.Client) {
+func HandleCmd(pack *protocol.Pack, client *manage.Client) {
 
 	var getHandle handle.Handle
+
 	switch pack.Cmd {
 	case 1:
 		getHandle = handle.NewConnect()

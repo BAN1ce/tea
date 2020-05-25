@@ -16,7 +16,7 @@ func NewHb() *Hb {
 	return new(Hb)
 }
 
-func (h *Hb) Handle(pack protocol.Pack, client *manage.Client) {
+func (h *Hb) Handle(pack *protocol.Pack, client *manage.Client) {
 
 	atomic.AddUint32(&distributed.HBTotalCount, 1)
 

@@ -6,14 +6,13 @@ import (
 )
 
 type subscribePack struct {
-	protocol.Pack
+	*protocol.Pack
 	Identifier uint16
 	Payload    []byte
 	TopicQos   map[string]uint8
 }
 
-
-func NewSubscribePack(pack protocol.Pack) *subscribePack {
+func NewSubscribePack(pack *protocol.Pack) *subscribePack {
 	p := new(subscribePack)
 	p.Pack = pack
 	p.TopicQos = make(map[string]uint8)
@@ -35,4 +34,3 @@ func NewSubscribePack(pack protocol.Pack) *subscribePack {
 
 	return p
 }
-

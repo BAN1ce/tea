@@ -18,7 +18,7 @@ func NewSubscribe() *Subscribe {
 	return new(Subscribe)
 }
 
-func (s *Subscribe) Handle(pack protocol.Pack, client *manage.Client) {
+func (s *Subscribe) Handle(pack *protocol.Pack, client *manage.Client) {
 	p := request.NewSubscribePack(pack)
 
 	qosSlice := make([]byte, 0)
