@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"tea/src/server"
+	_ "net/http/pprof"
 )
 
 var (
@@ -16,6 +19,9 @@ var (
 
 func main() {
 
+	go func() {
+		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+	}()
 
 	flag.Parse()
 
