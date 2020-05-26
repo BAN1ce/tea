@@ -71,10 +71,10 @@ func NewServer(addr net.Addr) *Server {
 	})
 	server.SetOnMessage(func(msg []byte, client *manage.Client) error {
 
-		pack := protocol.Decode(msg)
-
-		mqtt.HandleCmd(pack, client)
-
+		go func() {
+			pack := protocol.Decode(msg)
+			mqtt.HandleCmd(pack, client)
+		}()
 		return nil
 	})
 
