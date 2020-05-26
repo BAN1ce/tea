@@ -2,7 +2,6 @@ package handle
 
 import (
 	"strings"
-	"tea/src/distributed"
 	"tea/src/manage"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/request"
@@ -79,15 +78,13 @@ func (p *Publish) Handle(pack *protocol.Pack, client *manage.Client) {
 		node.Clients.Mu.RUnlock()
 	}
 
-	broadPub, _ := distributed.NewBroadcastPubMessage()
-
-	broadPub.TopicName = publishPack.TopicName
-	broadPub.Qos = publishPack.Qos
-	broadPub.Dup = publishPack.Dup
-	broadPub.Retain = publishPack.Retain
-	broadPub.Payload = publishPack.Payload
-
-	//fmt.Println("get pub message", string(publishPack.Payload))
-	distributed.BroadcastPub(broadPub)
+	//broadPub, _ := distributed.NewBroadcastPubMessage()
+	//
+	//broadPub.TopicName = publishPack.TopicName
+	//broadPub.Qos = publishPack.Qos
+	//broadPub.Dup = publishPack.Dup
+	//broadPub.Retain = publishPack.Retain
+	//broadPub.Payload = publishPack.Payload
+	//distributed.BroadcastPub(broadPub)
 
 }
