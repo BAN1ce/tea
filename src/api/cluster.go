@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"tea/src/distributed"
+	"tea/src/server"
 )
 
 func GetHandle(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +19,7 @@ func GetBroadcastTotalCount(w http.ResponseWriter, r *http.Request) {
 	response["total_handle_count"] = distributed.BroadcastHandleTotalCount
 	response["total_broadcasted"] = distributed.BroadcastedCount
 	response["total_hb_count"] = distributed.HBTotalCount
-
+	response["client_count"] = server.LocalServer.Manage.GetClientCount()
 	b, _ := json.Marshal(response)
 
 	w.Write(b)

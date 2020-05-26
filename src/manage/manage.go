@@ -13,7 +13,7 @@ import (
 )
 
 type Manage struct {
-	clients            sync.Map
+	clients            map[uuid.UUID]*Client
 	ClientsUsernameUid sync.Map
 	clientDone         chan uuid.UUID
 	OnConnect          OnConnect
@@ -24,6 +24,7 @@ type Manage struct {
 	HbTimeout          time.Duration
 	HbInterval         time.Duration
 	HbContent          []byte
+	mu                 sync.RWMutex
 }
 
 func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protocol unpack.Protocol) *Manage {
@@ -46,21 +47,19 @@ func (m *Manage) Run() {
 			select {
 			case clientId := <-m.clientDone:
 				//fixme 删除客户端的两种订阅
-				if client, ok := m.clients.Load(clientId); ok {
-					if c, ok := client.(*Client); ok {
-						for topic, _ := range c.Topics {
-							topics := strings.Split(topic, "/")
-							if utils.HasWildcard(topics) {
-								sub.DeleteTreeSub(topics, clientId)
-							} else {
-								sub.DeleteHashSub(topic, clientId)
-							}
-
+				if client, ok := m.GetClient(clientId); ok {
+					for topic, _ := range client.Topics {
+						topics := strings.Split(topic, "/")
+						if utils.HasWildcard(topics) {
+							sub.DeleteTreeSub(topics, clientId)
+						} else {
+							sub.DeleteHashSub(topic, clientId)
 						}
-						m.ClientsUsernameUid.Delete(c.UserName)
+
 					}
+					m.ClientsUsernameUid.Delete(client.UserName)
 				}
-				m.clients.Delete(clientId)
+				m.delClient(clientId)
 
 			}
 		}
@@ -73,7 +72,7 @@ func (m *Manage) AddClient(ctx context.Context, conn net.Conn) {
 
 	c := NewClient(conn, uid, m.clientDone, m.Protocol, m.OnMessage, m.OnConnect, m.OnClose, m)
 
-	m.clients.Store(uid, c)
+	m.setClient(uid, c)
 
 	if hbInterval, hbContent := m.HbInterval, m.HbContent;
 		hbInterval > 0 && hbContent != nil {
@@ -89,21 +88,38 @@ func (m *Manage) AddClient(ctx context.Context, conn net.Conn) {
 
 func (m *Manage) SendToClient(clientId uuid.UUID, data []byte) {
 
-	if c, ok := m.clients.Load(clientId); ok {
-
-		if c, ok := c.(*Client); ok {
-			c.Write(data)
-		}
+	if c, ok := m.GetClient(clientId); ok {
+		c.Write(data)
 	}
 }
 
 func (m *Manage) GetClient(clientId uuid.UUID) (*Client, bool) {
 
-	if c, ok := m.clients.Load(clientId); ok {
-		if c, ok := c.(*Client); ok {
-			return c, true
-		}
-	}
-	return nil, false
+	m.mu.RLock()
+	c, ok := m.clients[clientId]
+	defer m.mu.RUnlock()
 
+	return c, ok
+}
+
+func (m *Manage) setClient(clientId uuid.UUID, client *Client) {
+
+	m.mu.Lock()
+	m.clients[clientId] = client
+	m.mu.Unlock()
+}
+
+func (m *Manage) delClient(clientId uuid.UUID) {
+	m.mu.Lock()
+	delete(m.clients, clientId)
+	m.mu.Unlock()
+
+}
+
+func (m *Manage) GetClientCount() int {
+
+	m.mu.RLock()
+	count := len(m.clients)
+	m.mu.RUnlock()
+	return count
 }

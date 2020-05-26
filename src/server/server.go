@@ -37,6 +37,8 @@ type Server struct {
 	Manage        *manage.Manage
 }
 
+var LocalServer *Server
+
 func NewServer(addr net.Addr) *Server {
 
 	var err error
@@ -81,6 +83,7 @@ func NewServer(addr net.Addr) *Server {
 
 	server.Run(context.Background())
 
+	LocalServer = server
 	return server
 }
 func (s *Server) GetHbInterval() time.Duration {
