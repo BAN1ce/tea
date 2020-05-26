@@ -27,6 +27,8 @@ type Manage struct {
 	mu                 sync.RWMutex
 }
 
+var LocalManage *Manage
+
 func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protocol unpack.Protocol) *Manage {
 	m := new(Manage)
 	m.clientDone = make(chan uuid.UUID, 10)
@@ -35,6 +37,7 @@ func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protoc
 	m.OnConnect = onConnect
 	m.OnMessage = onMessage
 	m.HbTimeout = 60 * time.Second
+	LocalManage = m
 	return m
 }
 
