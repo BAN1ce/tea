@@ -31,6 +31,7 @@ var LocalManage *Manage
 
 func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protocol unpack.Protocol) *Manage {
 	m := new(Manage)
+	m.clients = make(map[uuid.UUID]*Client, 50000)
 	m.clientDone = make(chan uuid.UUID, 10)
 	m.Protocol = protocol
 	m.OnClose = onClose
