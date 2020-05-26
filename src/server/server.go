@@ -69,6 +69,7 @@ func NewServer(addr net.Addr) *Server {
 		return protocol.Input()
 
 	})
+	server.SetHbTimeout(60 * time.Second)
 	server.SetOnMessage(func(msg []byte, client *manage.Client) error {
 
 		go func() {
@@ -170,7 +171,6 @@ func (s *Server) Run(ctx context.Context) {
 	s.mutex.RUnlock()
 
 	go func() {
-
 		api.HttpServerBoot()
 	}()
 
