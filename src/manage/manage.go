@@ -37,7 +37,7 @@ func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protoc
 	m.OnClose = onClose
 	m.OnConnect = onConnect
 	m.OnMessage = onMessage
-	m.HbTimeout = 60 * time.Second
+	m.HbTimeout = 120 * time.Second
 	LocalManage = m
 	return m
 }
