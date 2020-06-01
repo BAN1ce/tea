@@ -43,8 +43,8 @@ func main() {
 
 		opts := mqtt.NewClientOptions().AddBroker(addr).SetUsername(fmt.Sprintf("%s_hello", *name) + string(i))
 
-		opts.SetKeepAlive(30 * time.Second)
-		opts.SetPingTimeout(30 * time.Second)
+		opts.SetKeepAlive(60 * time.Second)
+		opts.SetPingTimeout(10 * time.Second)
 
 		// 设置消息回调处理函数
 		opts.SetDefaultPublishHandler(f)

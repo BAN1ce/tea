@@ -70,7 +70,7 @@ func NewServer(addr net.Addr) *Server {
 		return protocol.Input()
 
 	})
-	server.SetHbTimeout(60 * time.Second)
+	server.SetHbTimeout(90 * time.Second)
 	server.SetOnMessage(func(msg []byte, client *manage.Client) error {
 
 		go func() {
