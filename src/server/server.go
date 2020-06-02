@@ -14,7 +14,6 @@ import (
 	"tea/src/mqtt"
 	"tea/src/mqtt/protocol"
 	"tea/src/mqtt/qos"
-	"tea/src/unpack"
 	"time"
 )
 
@@ -25,7 +24,7 @@ type Server struct {
 	clients       sync.Map
 	clientDone    chan uuid.UUID
 	listener      net.Listener
-	Protocol      unpack.Protocol
+	Protocol      bufio.SplitFunc
 	mutex         *sync.RWMutex
 	onServerStart func(s *Server)
 	OnConnect     manage.OnConnect
@@ -36,7 +35,6 @@ type Server struct {
 	hbTimeout     time.Duration
 	Manage        *manage.Manage
 }
-
 
 func NewServer(addr net.Addr) *Server {
 
@@ -65,11 +63,7 @@ func NewServer(addr net.Addr) *Server {
 
 	mqtt.Boot()
 
-	server.SetProtocol(func() bufio.SplitFunc {
-
-		return protocol.Input()
-
-	})
+	server.SetProtocol(protocol.Input())
 	server.SetHbTimeout(90 * time.Second)
 	server.SetOnMessage(func(msg []byte, client *manage.Client) error {
 
@@ -109,7 +103,7 @@ func (s *Server) SetOnMessage(onMessage manage.OnMessage) {
 func (s *Server) SetOnClose(onClose manage.OnClose) {
 	s.OnClose = onClose
 }
-func (s *Server) SetProtocol(protocol unpack.Protocol) {
+func (s *Server) SetProtocol(protocol bufio.SplitFunc) {
 	s.Protocol = protocol
 }
 func (s *Server) SetHbInterval(d time.Duration) {

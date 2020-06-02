@@ -1,13 +1,13 @@
 package manage
 
 import (
+	"bufio"
 	"context"
 	"github.com/google/uuid"
 	"net"
 	"strings"
 	"sync"
 	"tea/src/mqtt/sub"
-	"tea/src/unpack"
 	"tea/src/utils"
 	"time"
 )
@@ -19,7 +19,7 @@ type Manage struct {
 	OnConnect          OnConnect
 	OnMessage          OnMessage
 	OnClose            OnClose
-	Protocol           unpack.Protocol
+	Protocol           bufio.SplitFunc
 	HbTimer            *time.Timer
 	HbTimeout          time.Duration
 	HbInterval         time.Duration
@@ -29,7 +29,7 @@ type Manage struct {
 
 var LocalManage *Manage
 
-func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protocol unpack.Protocol) *Manage {
+func NewManage(onConnect OnConnect, onMessage OnMessage, onClose OnClose, protocol bufio.SplitFunc) *Manage {
 	m := new(Manage)
 	m.clients = make(map[uuid.UUID]*Client, 50000)
 	m.clientDone = make(chan uuid.UUID, 10)

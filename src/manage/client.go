@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net"
 	"sync"
-	"tea/src/unpack"
 	"time"
 )
 
@@ -30,7 +29,7 @@ type Client struct {
 	hbContent  []byte
 	mutex      *sync.RWMutex
 	cancel     context.CancelFunc
-	protocol   unpack.Protocol
+	protocol   bufio.SplitFunc
 	onMessage  OnMessage
 	onConnect  OnConnect
 	onClose    OnClose
@@ -42,7 +41,7 @@ type Client struct {
 /**
 create a new client .
 */
-func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, protocol unpack.Protocol,
+func NewClient(conn net.Conn, uuid uuid.UUID, clientDone chan<- uuid.UUID, protocol bufio.SplitFunc,
 	onMessage OnMessage, onConnect OnConnect, onClose OnClose, manage *Manage) *Client {
 
 	client := &Client{
@@ -161,7 +160,7 @@ func (c *Client) unPackHandle(ctx context.Context) {
 
 		default:
 			scanner := bufio.NewScanner(c.conn)
-			scanner.Split(c.protocol())
+			scanner.Split(c.protocol)
 			for scanner.Scan() {
 				c.readChan <- scanner.Bytes()
 				if c.hbTimeout > 0 {
